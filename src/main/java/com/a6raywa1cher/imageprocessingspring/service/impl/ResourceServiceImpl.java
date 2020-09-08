@@ -32,4 +32,8 @@ public class ResourceServiceImpl implements ResourceService {
 	public Image loadStaticImage(String image) throws IOException {
 		return new Image(getResourceURL(image).toString());
 	}
+
+	public URL getStaticImageURL(String image) throws IOException {
+		return getResourceURL(image);
+	}
 }

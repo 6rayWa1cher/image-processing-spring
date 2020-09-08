@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 
 @Component
+@Order(1)
 public class StageListener implements ApplicationListener<JavaFXApplicationStartedEvent> {
 	private final ApplicationContext ctx;
 	private final Resource resource;
@@ -33,6 +35,7 @@ public class StageListener implements ApplicationListener<JavaFXApplicationStart
 			loader.setControllerFactory(ctx::getBean);
 			Parent root = loader.load();
 			Scene scene = new Scene(root, 620, 480);
+			stage.setTitle("ImageProcessor");
 			stage.setScene(scene);
 			stage.show();
 		} catch (IOException e) {

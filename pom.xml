@@ -15,8 +15,8 @@
     <description>Demo project for Spring Boot</description>
 
     <properties>
-        <java.version>11</java.version>
-        <javafx.version>11</javafx.version>
+        <java.version>14</java.version>
+        <javafx.version>14</javafx.version>
     </properties>
 
     <dependencies>
