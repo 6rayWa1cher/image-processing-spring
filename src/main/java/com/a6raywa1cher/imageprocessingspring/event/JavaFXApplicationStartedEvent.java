@@ -1,4 +1,4 @@
-package com.a6raywa1cher.imageprocessingspring;
+package com.a6raywa1cher.imageprocessingspring.event;
 
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationEvent;

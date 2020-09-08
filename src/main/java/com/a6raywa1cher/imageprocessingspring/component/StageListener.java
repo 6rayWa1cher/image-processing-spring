@@ -1,6 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.component;
 
-import com.a6raywa1cher.imageprocessingspring.JavaFXApplicationStartedEvent;
+import com.a6raywa1cher.imageprocessingspring.event.JavaFXApplicationStartedEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

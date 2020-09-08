@@ -1,5 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring;
 
+import com.a6raywa1cher.imageprocessingspring.event.JavaFXApplicationStartedEvent;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;

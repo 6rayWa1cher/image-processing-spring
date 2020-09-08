@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.GrayScaleController"
+            prefHeight="200.0" prefWidth="133.0">
+    <children>
+        <Label text="Grayscale"/>
+        <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+        <AnchorPane layoutY="21.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <children>
+                <AnchorPane layoutY="6.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <Label text="R" AnchorPane.leftAnchor="0.0"/>
+                        <Slider fx:id="grayScaleRedSlider" layoutX="14.0" layoutY="1.0" AnchorPane.leftAnchor="25.0"
+                                AnchorPane.rightAnchor="25.0"/>
+                        <Label fx:id="grayScaleRedSliderLabel" alignment="CENTER" layoutX="180.8000030517578" text="100"
+                               textAlignment="CENTER" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <Label text="G" AnchorPane.leftAnchor="0.0"/>
+                        <Slider fx:id="grayScaleGreenSlider" layoutX="14.0" layoutY="1.0" AnchorPane.leftAnchor="25.0"
+                                AnchorPane.rightAnchor="25.0"/>
+                        <Label fx:id="grayScaleGreenSliderLabel" alignment="CENTER" layoutX="180.8000030517578"
+                               text="100" textAlignment="CENTER" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="44.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <Label text="B" AnchorPane.leftAnchor="0.0"/>
+                        <Slider fx:id="grayScaleBlueSlider" layoutX="14.0" layoutY="1.0" AnchorPane.leftAnchor="25.0"
+                                AnchorPane.rightAnchor="25.0"/>
+                        <Label fx:id="grayScaleBlueSliderLabel" alignment="CENTER" layoutX="180.8000030517578"
+                               text="100" textAlignment="CENTER" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="63.0" prefHeight="22.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <Label layoutY="3.0" text="Base color" AnchorPane.leftAnchor="0.0"/>
+                        <ColorPicker fx:id="grayScaleBaseColor" editable="true" layoutX="55.0" layoutY="-1.0"
+                                     AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="90.0" prefHeight="22.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <CheckBox fx:id="grayScalePreviewCheckbox" layoutY="3.0" mnemonicParsing="false" text="Preview"
+                                  AnchorPane.leftAnchor="0.0"/>
+                        <Button fx:id="grayScaleApplyButton" layoutX="148.0" layoutY="-1.0" mnemonicParsing="false"
+                                text="Apply" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>
