@@ -14,7 +14,7 @@
                 <Menu mnemonicParsing="false" text="File">
                     <items>
                         <!--                        <MenuItem mnemonicParsing="false" text="New"/>-->
-                        <MenuItem mnemonicParsing="false" text="Open…" onAction="#onOpenFile"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onOpenFile" text="Open…"/>
                         <Menu mnemonicParsing="false" text="Open Recent"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" text="Close"/>
@@ -87,9 +87,8 @@
                     <content>
                         <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
                             <children>
-                                <ImageView fx:id="image" fitHeight="150.0" fitWidth="200.0" layoutX="115.0"
-                                           layoutY="198.0"
-                                           pickOnBounds="true" preserveRatio="true"/>
+                                <ImageView fx:id="image" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true"
+                                           preserveRatio="true" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                             </children>
                         </AnchorPane>
                     </content>

@@ -3,6 +3,7 @@ package com.a6raywa1cher.imageprocessingspring.controller;
 import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.extern.slf4j.Slf4j;
@@ -22,19 +23,27 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 	public ColorPicker baseColor;
 	public CheckBox previewCheckbox;
 	public Button applyButton;
+	private volatile boolean updating;
+
 
 	public GrayScaleController(ImageProcessingService service) {
 		this.service = service;
 	}
 
-	private GrayScaleInformation stateToInformation() {
+	private synchronized GrayScaleInformation stateToInformation() {
 		return new GrayScaleInformation(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor.getValue(), previewCheckbox.isSelected());
 	}
 
 	public void initialize() {
-		redSlider.valueProperty().addListener((observable, oldValue, newValue) -> onChange());
-		greenSlider.valueProperty().addListener((observable, oldValue, newValue) -> onChange());
-		blueSlider.valueProperty().addListener((observable, oldValue, newValue) -> onChange());
+		redSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+		greenSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+		blueSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
 	}
 
 	@FXML
@@ -49,18 +58,25 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 
 	@Override
 	public void onApplicationEvent(GrayScaleModifiedEvent event) {
-		GrayScaleInformation information = event.getGrayScaleInformation();
-		informationToState(information);
+		Platform.runLater(() -> {
+			GrayScaleInformation information = event.getGrayScaleInformation();
+			informationToState(information);
+		});
 	}
 
-	private void informationToState(GrayScaleInformation information) {
-		redSlider.setValue(information.getRedSlider());
-		redSliderLabel.setText(Integer.toString((int) information.getRedSlider()));
-		greenSlider.setValue(information.getGreenSlider());
-		greenSliderLabel.setText(Integer.toString((int) information.getGreenSlider()));
-		blueSlider.setValue(information.getBlueSlider());
-		blueSliderLabel.setText(Integer.toString((int) information.getBlueSlider()));
-		baseColor.setValue(information.getBaseColor());
-		previewCheckbox.setSelected(information.isPreview());
+	private synchronized void informationToState(GrayScaleInformation information) {
+		updating = true;
+		try {
+			redSlider.setValue(information.getRedSlider());
+			redSliderLabel.setText(Integer.toString((int) information.getRedSlider()));
+			greenSlider.setValue(information.getGreenSlider());
+			greenSliderLabel.setText(Integer.toString((int) information.getGreenSlider()));
+			blueSlider.setValue(information.getBlueSlider());
+			blueSliderLabel.setText(Integer.toString((int) information.getBlueSlider()));
+			baseColor.setValue(information.getBaseColor());
+			previewCheckbox.setSelected(information.isPreview());
+		} finally {
+			updating = false;
+		}
 	}
 }

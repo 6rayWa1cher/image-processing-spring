@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -56,10 +57,17 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		return new ImageBundle(before, after);
 	}
 
+	private void convertAndSave(Image before, boolean preview) {
+		CompletableFuture.runAsync(() -> {
+			int version = imageRepository.getImageBundleVersion();
+			imageRepository.setImageBundle(convertImage(before, preview), version);
+		});
+	}
+
 	@Override
 	public void setGrayScaleInformation(GrayScaleInformation information) {
 		imageRepository.setGrayScaleInformation(information);
-		imageRepository.setImageBundle(convertImage(imageRepository.getImageBundle().getCurrentImage(), true));
+		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
 	}
 
 	@Override
@@ -67,7 +75,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		imageRepository.setGrayScaleInformation(grayScaleInformation);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
 		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScaleInformation.getRedSlider(), grayScaleInformation.getGreenSlider(), grayScaleInformation.getBlueSlider());
-		imageRepository.setImageBundle(convertImage(newImage, true));
+		convertAndSave(newImage, true);
 	}
 
 	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight) {
@@ -124,13 +132,13 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 
 	@Override
 	public void openFile(Image image, String url) {
-		imageRepository.setImageBundle(convertImage(image, true));
+		convertAndSave(image, true);
 	}
 
 	@Override
 	public void openFile(String url) {
 		log.info("Trying to open url {}", url);
 		Image image = new Image(url);
-		imageRepository.setImageBundle(convertImage(image, true));
+		convertAndSave(image, true);
 	}
 }

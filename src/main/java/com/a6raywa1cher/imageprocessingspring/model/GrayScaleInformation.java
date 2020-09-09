@@ -1,13 +1,11 @@
 package com.a6raywa1cher.imageprocessingspring.model;
 
 import javafx.scene.paint.Color;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class GrayScaleInformation {
 	private double redSlider = 30d;
 
@@ -18,4 +16,12 @@ public class GrayScaleInformation {
 	private Color baseColor = Color.BLACK;
 
 	private boolean preview = false;
+
+	public GrayScaleInformation(double redSlider, double greenSlider, double blueSlider, Color baseColor, boolean preview) {
+		this.redSlider = redSlider;
+		this.greenSlider = greenSlider;
+		this.blueSlider = blueSlider;
+		this.baseColor = baseColor;
+		this.preview = preview;
+	}
 }

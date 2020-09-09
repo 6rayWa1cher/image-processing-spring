@@ -2,6 +2,7 @@ package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -38,9 +39,13 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 
 	@Override
 	public void onApplicationEvent(ImageModifiedEvent event) {
-		Image currentViewImage = event.getImageBundle().getCurrentViewImage();
-		image.setImage(currentViewImage);
-		image.setFitWidth(currentViewImage.getWidth());
-		image.setFitHeight(currentViewImage.getHeight());
+		Platform.runLater(() -> {
+			Image currentViewImage = event.getImageBundle().getCurrentViewImage();
+			image.setImage(currentViewImage);
+			if (currentViewImage != null) {
+				image.setFitWidth(currentViewImage.getWidth());
+				image.setFitHeight(currentViewImage.getHeight());
+			}
+		});
 	}
 }
