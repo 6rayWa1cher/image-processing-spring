@@ -14,9 +14,9 @@ public interface ImageRepository {
 
 	GrayScaleInformation getGrayScaleInformation();
 
-	int getGrayScaleInformationVersion();
-
 	void setGrayScaleInformation(GrayScaleInformation information);
 
-	void setGrayScaleInformation(GrayScaleInformation information, int version);
+	String getImageURL();
+
+	void setImageURL(String url);
 }

@@ -11,7 +11,7 @@ public class AlgorithmUtils {
 		List<Rectangle> out = new LinkedList<>();
 		for (int i = 0; i < w; i += cellW) {
 			for (int j = 0; j < h; j += cellH) {
-				out.add(new Rectangle(i, j, Math.min(i + cellW, w), Math.min(j + cellH, h)));
+				out.add(new Rectangle(i, j, (i + cellW > w ? w - i : cellW), (j + cellH > h ? h - j : cellH)));
 			}
 		}
 		return out;

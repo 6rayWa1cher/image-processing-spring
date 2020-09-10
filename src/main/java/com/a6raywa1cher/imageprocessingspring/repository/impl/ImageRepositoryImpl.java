@@ -18,13 +18,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ImageRepositoryImpl implements ImageRepository, ApplicationContextAware {
 	private ImageBundle imageBundle;
 
+	private String url;
+
 	private final ReentrantLock lock = new ReentrantLock();
 
 	private GrayScaleInformation grayScaleInformation;
 	private int imageBundleVersion;
 
 	private ApplicationContext ctx;
-	private int grayScaleInformationVersion;
 
 	public ImageRepositoryImpl() {
 		imageBundle = new ImageBundle();
@@ -33,10 +34,6 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 
 	private void incrementImageBundleVersion() {
 		imageBundleVersion = Math.max(0, imageBundleVersion + 1);
-	}
-
-	private void incrementGrayScaleVersion() {
-		grayScaleInformationVersion = Math.max(0, grayScaleInformationVersion + 1);
 	}
 
 	@Override
@@ -73,17 +70,12 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 		return grayScaleInformation;
 	}
 
-	@Override
-	public int getGrayScaleInformationVersion() {
-		return grayScaleInformationVersion;
-	}
 
 	@Override
 	public void setGrayScaleInformation(GrayScaleInformation information) {
 		lock.lock();
 		try {
 			this.grayScaleInformation = information;
-			incrementGrayScaleVersion();
 			log.info(information.toString());
 			ctx.publishEvent(new GrayScaleModifiedEvent(information));
 		} finally {
@@ -92,11 +84,20 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 	}
 
 	@Override
-	public void setGrayScaleInformation(GrayScaleInformation information, int version) {
-		if (grayScaleInformationVersion <= version) {
-			setGrayScaleInformation(information);
+	public String getImageURL() {
+		return url;
+	}
+
+	@Override
+	public void setImageURL(String url) {
+		lock.lock();
+		try {
+			this.url = url;
+		} finally {
+			lock.unlock();
 		}
 	}
+
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

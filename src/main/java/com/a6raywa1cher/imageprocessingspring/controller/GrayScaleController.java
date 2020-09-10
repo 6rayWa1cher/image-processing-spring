@@ -20,9 +20,10 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 	public Label greenSliderLabel;
 	public Slider blueSlider;
 	public Label blueSliderLabel;
-	public ColorPicker baseColor;
 	public CheckBox previewCheckbox;
 	public Button applyButton;
+	public ChoiceBox<String> colorChooser;
+
 	private volatile boolean updating;
 
 
@@ -31,7 +32,14 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 	}
 
 	private synchronized GrayScaleInformation stateToInformation() {
-		return new GrayScaleInformation(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor.getValue(), previewCheckbox.isSelected());
+		GrayScaleInformation.BaseColor baseColor;
+		switch (colorChooser.getValue()) {
+			case "Red" -> baseColor = GrayScaleInformation.BaseColor.RED;
+			case "Green" -> baseColor = GrayScaleInformation.BaseColor.GREEN;
+			case "Blue" -> baseColor = GrayScaleInformation.BaseColor.BLUE;
+			default -> baseColor = GrayScaleInformation.BaseColor.BLACK;
+		}
+		return new GrayScaleInformation(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor, previewCheckbox.isSelected());
 	}
 
 	public void initialize() {
@@ -42,6 +50,9 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 			if (!updating) onChange();
 		});
 		blueSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+		colorChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
 			if (!updating) onChange();
 		});
 	}
@@ -73,7 +84,14 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 			greenSliderLabel.setText(Integer.toString((int) information.getGreenSlider()));
 			blueSlider.setValue(information.getBlueSlider());
 			blueSliderLabel.setText(Integer.toString((int) information.getBlueSlider()));
-			baseColor.setValue(information.getBaseColor());
+			String value;
+			switch (information.getBaseColor()) {
+				case RED -> value = "Red";
+				case GREEN -> value = "Green";
+				case BLUE -> value = "Blue";
+				default -> value = "Black";
+			}
+			colorChooser.setValue(value);
 			previewCheckbox.setSelected(information.isPreview());
 		} finally {
 			updating = false;

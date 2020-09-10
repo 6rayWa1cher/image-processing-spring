@@ -4,27 +4,31 @@ import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
+import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.LookupOp;
+import java.awt.image.LookupTable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @Slf4j
 public class ImageProcessingServiceImpl implements ImageProcessingService {
 	private final ImageRepository imageRepository;
+	private final Executor executor = new HeapExecutor();
 
 	@Autowired
 	public ImageProcessingServiceImpl(ImageRepository imageRepository) {
@@ -52,7 +56,8 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		GrayScaleInformation information = imageRepository.getGrayScaleInformation();
 		Image after = before;
 		if (preview && information.isPreview()) {
-			after = grayScale(before, information.getRedSlider(), information.getGreenSlider(), information.getBlueSlider());
+			after = grayScale(before, information.getRedSlider(), information.getGreenSlider(), information.getBlueSlider(),
+				information.getBaseColor());
 		}
 		return new ImageBundle(before, after);
 	}
@@ -61,7 +66,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		CompletableFuture.runAsync(() -> {
 			int version = imageRepository.getImageBundleVersion();
 			imageRepository.setImageBundle(convertImage(before, preview), version);
-		});
+		}, executor);
 	}
 
 	@Override
@@ -74,57 +79,76 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	public void applyGrayScaleInformation(GrayScaleInformation grayScaleInformation) {
 		imageRepository.setGrayScaleInformation(grayScaleInformation);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScaleInformation.getRedSlider(), grayScaleInformation.getGreenSlider(), grayScaleInformation.getBlueSlider());
+		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScaleInformation.getRedSlider(),
+			grayScaleInformation.getGreenSlider(), grayScaleInformation.getBlueSlider(), grayScaleInformation.getBaseColor());
 		convertAndSave(newImage, true);
 	}
 
-	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight) {
+	@Override
+	public void saveFile() {
+		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), new File(imageRepository.getImageURL()));
+	}
+
+	@Override
+	public void saveToFile(File file) {
+		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), file);
+	}
+
+	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight, GrayScaleInformation.BaseColor baseColor) {
 		WritableImage writableImage = imageToWriteable(image);
-		PixelWriter pixelWriter = writableImage.getPixelWriter();
-		PixelReader pixelReader = writableImage.getPixelReader();
 		double normalizedRedWeight = normalize(redWeight, redWeight, greenWeight, blueWeight);
 		double normalizedGreenWeight = normalize(greenWeight, redWeight, greenWeight, blueWeight);
 		double normalizedBlueWeight = normalize(blueWeight, redWeight, greenWeight, blueWeight);
-//		List<AlgorithmUtils.Rectangle> regions = AlgorithmUtils.partition(
-//			getWidth(writableImage), getHeight(writableImage), 250, 250);
-//		ByteBuffer byteBuffer = ByteBuffer.allocate(writableImage.getPixelReader().getPixelFormat().getType().);
-//		BufferedImage bImage = SwingFXUtils.fromFXImage(writableImage, null);
-//		regions.parallelStream()
-//			.map(rectangle -> {
-//				int h = rectangle.getH();
-//				int w = rectangle.getW();
-//				PixelFormat pixelFormat = pixelWriter.getPixelFormat();
-//				writableImage.getPixelReader().getPixelFormat().getType()
-//				for (int i = 0; i < w; i++) {
-//					for (int j = 0; j < h; j++) {
-//						Color color = pixelReader.getColor(i, j);
-//						double intensity = normalizedRedWeight * color.getRed() +
-//							normalizedGreenWeight * color.getGreen() +
-//							normalizedBlueWeight * color.getBlue();
-//						if (intensity > 1) intensity = 1;
-//
-//					}
-//				}
-//			})
-		for (int i = 0; i < getWidth(image); i++) {
-			for (int j = 0; j < getHeight(image); j++) {
-				Color color = pixelReader.getColor(i, j);
-				double intensity = normalizedRedWeight * color.getRed() +
-					normalizedGreenWeight * color.getGreen() +
-					normalizedBlueWeight * color.getBlue();
-				if (intensity > 1) intensity = 1;
-				pixelWriter.setColor(i, j, new Color(intensity, intensity, intensity, 1d));
-			}
-		}
+		long start = System.currentTimeMillis();
 
-//		saveToFile(writableImage, new File("C:\\Users\\6rayWa1cher\\IdeaProjects\\image-processing\\image-processing-javafx\\2.png"));
-		return writableImage;
+		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
+
+		LookupTable lookupTable = new LookupTable(0, 4) {
+			@Override
+			public int[] lookupPixel(int[] src, int[] dest) {
+				int intensity = (int) (normalizedRedWeight * src[0] +
+					normalizedGreenWeight * src[1] +
+					normalizedBlueWeight * src[2]);
+				switch (baseColor) {
+					case RED -> {
+						dest[0] = intensity;
+						dest[1] = 0x00;
+						dest[2] = 0x00;
+					}
+					case GREEN -> {
+						dest[0] = 0x00;
+						dest[1] = intensity;
+						dest[2] = 0x00;
+					}
+					case BLUE -> {
+						dest[0] = 0x00;
+						dest[1] = 0x00;
+						dest[2] = intensity;
+					}
+					case BLACK -> {
+						dest[0] = intensity;
+						dest[1] = intensity;
+						dest[2] = intensity;
+					}
+				}
+				return dest;
+			}
+		};
+		LookupOp op = new LookupOp(lookupTable, new RenderingHints(null));
+		op.filter(bufferedImage, bufferedImage);
+		WritableImage out = SwingFXUtils.toFXImage(bufferedImage, writableImage);
+
+		log.info("grayscale: {}ms", System.currentTimeMillis() - start);
+		return out;
 	}
 
-	public void saveToFile(Image img, File file) {
+	private void saveToFile(Image img, File file) {
 		BufferedImage bImage = SwingFXUtils.fromFXImage(img, null);
 		try {
-			ImageIO.write(bImage, "png", file);
+			String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
+			if (!ImageIO.write(bImage, extension != null ? extension : "png", file)) {
+				ImageIO.write(bImage, "png", file);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -133,12 +157,13 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	@Override
 	public void openFile(Image image, String url) {
 		convertAndSave(image, true);
+		imageRepository.setImageURL(url);
 	}
 
 	@Override
 	public void openFile(String url) {
 		log.info("Trying to open url {}", url);
 		Image image = new Image(url);
-		convertAndSave(image, true);
+		openFile(image, url);
 	}
 }

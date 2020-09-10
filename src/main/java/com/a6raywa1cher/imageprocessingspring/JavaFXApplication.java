@@ -35,5 +35,6 @@ public class JavaFXApplication extends Application {
 	public void stop() {
 		context.close();
 		Platform.exit();
+		System.exit(0);
 	}
 }

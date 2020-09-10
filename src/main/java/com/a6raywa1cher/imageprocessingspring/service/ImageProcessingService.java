@@ -10,9 +10,9 @@ public interface ImageProcessingService {
 
 	void applyGrayScaleInformation(GrayScaleInformation grayScaleInformation);
 
-	Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight);
+	void saveFile();
 
-	void saveToFile(Image img, File file);
+	void saveToFile(File file);
 
 	void openFile(Image image, String url);
 
