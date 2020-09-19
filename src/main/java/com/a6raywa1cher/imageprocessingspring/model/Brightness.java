@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NegativeInformation {
-	private double threshold = 0;
+public class Brightness {
+	private double delta = 0;
 
-	private boolean preview;
+	private boolean preview = false;
 }

@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.BrightnessModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
+import com.a6raywa1cher.imageprocessingspring.model.Brightness;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -27,16 +27,16 @@ public class BrightnessController implements ApplicationListener<BrightnessModif
 		this.service = service;
 	}
 
-	private synchronized BrightnessInformation stateToInformation() {
-		return new BrightnessInformation(slider.getValue(), previewCheckbox.isSelected());
+	private synchronized Brightness stateToInformation() {
+		return new Brightness(slider.getValue(), previewCheckbox.isSelected());
 	}
 
-	private synchronized void informationToState(BrightnessInformation brightnessInformation) {
+	private synchronized void informationToState(Brightness brightness) {
 		updating = true;
 		try {
-			slider.setValue(brightnessInformation.getDelta());
-			sliderLabel.setText(Integer.toString((int) brightnessInformation.getDelta()));
-			previewCheckbox.setSelected(brightnessInformation.isPreview());
+			slider.setValue(brightness.getDelta());
+			sliderLabel.setText(Integer.toString((int) brightness.getDelta()));
+			previewCheckbox.setSelected(brightness.isPreview());
 		} finally {
 			updating = false;
 		}
@@ -50,19 +50,19 @@ public class BrightnessController implements ApplicationListener<BrightnessModif
 
 	@FXML
 	public void onChange() {
-		service.setBrightnessInformation(stateToInformation());
+		service.setBrightness(stateToInformation());
 	}
 
 	@FXML
 	public void apply() {
-		service.applyBrightnessInformation(stateToInformation());
+		service.applyBrightness(stateToInformation());
 	}
 
 	@Override
 	public void onApplicationEvent(BrightnessModifiedEvent event) {
 		Platform.runLater(() -> {
-			BrightnessInformation brightnessInformation = event.getBrightnessInformation();
-			informationToState(brightnessInformation);
+			Brightness brightness = event.getBrightnessInformation();
+			informationToState(brightness);
 		});
 	}
 }

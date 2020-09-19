@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.NegativeModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.NegativeInformation;
+import com.a6raywa1cher.imageprocessingspring.model.Negative;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -27,16 +27,16 @@ public class NegativeController implements ApplicationListener<NegativeModifiedE
 		this.service = service;
 	}
 
-	private synchronized NegativeInformation stateToInformation() {
-		return new NegativeInformation(slider.getValue(), previewCheckbox.isSelected());
+	private synchronized Negative stateToInformation() {
+		return new Negative(slider.getValue(), previewCheckbox.isSelected());
 	}
 
-	private synchronized void informationToState(NegativeInformation negativeInformation) {
+	private synchronized void informationToState(Negative negative) {
 		updating = true;
 		try {
-			slider.setValue(negativeInformation.getThreshold());
-			sliderLabel.setText(Integer.toString((int) negativeInformation.getThreshold()));
-			previewCheckbox.setSelected(negativeInformation.isPreview());
+			slider.setValue(negative.getThreshold());
+			sliderLabel.setText(Integer.toString((int) negative.getThreshold()));
+			previewCheckbox.setSelected(negative.isPreview());
 		} finally {
 			updating = false;
 		}
@@ -50,19 +50,19 @@ public class NegativeController implements ApplicationListener<NegativeModifiedE
 
 	@FXML
 	public void onChange() {
-		service.setNegativeInformation(stateToInformation());
+		service.setNegative(stateToInformation());
 	}
 
 	@FXML
 	public void apply() {
-		service.applyNegativeInformation(stateToInformation());
+		service.applyNegative(stateToInformation());
 	}
 
 	@Override
 	public void onApplicationEvent(NegativeModifiedEvent event) {
 		Platform.runLater(() -> {
-			NegativeInformation negativeInformation = event.getNegativeInformation();
-			informationToState(negativeInformation);
+			Negative negative = event.getNegativeInformation();
+			informationToState(negative);
 		});
 	}
 }

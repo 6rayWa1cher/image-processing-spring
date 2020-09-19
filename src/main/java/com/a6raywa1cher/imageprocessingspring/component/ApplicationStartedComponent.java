@@ -34,10 +34,10 @@ public class ApplicationStartedComponent implements ApplicationListener<JavaFXAp
 			resourceService.loadStaticImage("sampleImage.png"),
 			resourceService.getStaticImageURL("sampleImage.png").toString()
 		);
-		ctx.publishEvent(new GrayScaleModifiedEvent(imageRepository.getGrayScaleInformation()));
+		ctx.publishEvent(new GrayScaleModifiedEvent(imageRepository.getGrayScale()));
 		ctx.publishEvent(new ImageModifiedEvent(imageRepository.getImageBundle()));
-		ctx.publishEvent(new BrightnessModifiedEvent(imageRepository.getBrightnessInformation()));
-		ctx.publishEvent(new NegativeModifiedEvent(imageRepository.getNegativeInformation()));
+		ctx.publishEvent(new BrightnessModifiedEvent(imageRepository.getBrightness()));
+		ctx.publishEvent(new NegativeModifiedEvent(imageRepository.getNegative()));
 	}
 
 	@Override

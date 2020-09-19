@@ -4,10 +4,10 @@ import com.a6raywa1cher.imageprocessingspring.event.BrightnessModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.NegativeModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
+import com.a6raywa1cher.imageprocessingspring.model.Brightness;
+import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
-import com.a6raywa1cher.imageprocessingspring.model.NegativeInformation;
+import com.a6raywa1cher.imageprocessingspring.model.Negative;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -27,18 +27,18 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 	private ImageBundle imageBundle;
 	private int imageBundleVersion;
 
-	private GrayScaleInformation grayScaleInformation;
+	private GrayScale grayScale;
 
-	private BrightnessInformation brightnessInformation;
+	private Brightness brightness;
 
-	private NegativeInformation negativeInformation;
+	private Negative negative;
 
 
 	public ImageRepositoryImpl() {
 		imageBundle = new ImageBundle();
-		grayScaleInformation = new GrayScaleInformation();
-		brightnessInformation = new BrightnessInformation();
-		negativeInformation = new NegativeInformation();
+		grayScale = new GrayScale();
+		brightness = new Brightness();
+		negative = new Negative();
 	}
 
 	private void incrementImageBundleVersion() {
@@ -75,33 +75,33 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 	}
 
 	@Override
-	public GrayScaleInformation getGrayScaleInformation() {
-		return grayScaleInformation;
+	public GrayScale getGrayScale() {
+		return grayScale;
 	}
 
 
 	@Override
-	public void setGrayScaleInformation(GrayScaleInformation information) {
+	public void setGrayScale(GrayScale grayScale) {
 		lock.lock();
 		try {
-			this.grayScaleInformation = information;
-			log.info(information.toString());
-			ctx.publishEvent(new GrayScaleModifiedEvent(information));
+			this.grayScale = grayScale;
+			log.info(grayScale.toString());
+			ctx.publishEvent(new GrayScaleModifiedEvent(grayScale));
 		} finally {
 			lock.unlock();
 		}
 	}
 
 	@Override
-	public BrightnessInformation getBrightnessInformation() {
-		return brightnessInformation;
+	public Brightness getBrightness() {
+		return brightness;
 	}
 
 	@Override
-	public void setBrightnessInformation(BrightnessInformation information) {
+	public void setBrightness(Brightness information) {
 		lock.lock();
 		try {
-			this.brightnessInformation = information;
+			this.brightness = information;
 			log.info(information.toString());
 			ctx.publishEvent(new BrightnessModifiedEvent(information));
 		} finally {
@@ -110,17 +110,17 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 	}
 
 	@Override
-	public NegativeInformation getNegativeInformation() {
-		return negativeInformation;
+	public Negative getNegative() {
+		return negative;
 	}
 
 	@Override
-	public void setNegativeInformation(NegativeInformation negativeInformation) {
+	public void setNegative(Negative negative) {
 		lock.lock();
 		try {
-			this.negativeInformation = negativeInformation;
-			log.info(negativeInformation.toString());
-			ctx.publishEvent(new NegativeModifiedEvent(negativeInformation));
+			this.negative = negative;
+			log.info(negative.toString());
+			ctx.publishEvent(new NegativeModifiedEvent(negative));
 		} finally {
 			lock.unlock();
 		}

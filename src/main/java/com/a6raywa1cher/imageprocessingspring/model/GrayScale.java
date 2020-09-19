@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class GrayScaleInformation {
+public class GrayScale {
 	private double redSlider = 30d;
 
 	private double greenSlider = 59d;
@@ -16,7 +16,7 @@ public class GrayScaleInformation {
 
 	private boolean preview = false;
 
-	public GrayScaleInformation(double redSlider, double greenSlider, double blueSlider, BaseColor baseColor, boolean preview) {
+	public GrayScale(double redSlider, double greenSlider, double blueSlider, BaseColor baseColor, boolean preview) {
 		this.redSlider = redSlider;
 		this.greenSlider = greenSlider;
 		this.blueSlider = blueSlider;

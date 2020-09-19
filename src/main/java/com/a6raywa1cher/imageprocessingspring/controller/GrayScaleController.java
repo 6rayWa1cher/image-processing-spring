@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
+import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -32,15 +32,15 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 		this.service = service;
 	}
 
-	private synchronized GrayScaleInformation stateToInformation() {
-		GrayScaleInformation.BaseColor baseColor;
+	private synchronized GrayScale stateToInformation() {
+		GrayScale.BaseColor baseColor;
 		switch (colorChooser.getValue()) {
-			case "Red" -> baseColor = GrayScaleInformation.BaseColor.RED;
-			case "Green" -> baseColor = GrayScaleInformation.BaseColor.GREEN;
-			case "Blue" -> baseColor = GrayScaleInformation.BaseColor.BLUE;
-			default -> baseColor = GrayScaleInformation.BaseColor.BLACK;
+			case "Red" -> baseColor = GrayScale.BaseColor.RED;
+			case "Green" -> baseColor = GrayScale.BaseColor.GREEN;
+			case "Blue" -> baseColor = GrayScale.BaseColor.BLUE;
+			default -> baseColor = GrayScale.BaseColor.BLACK;
 		}
-		return new GrayScaleInformation(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor, previewCheckbox.isSelected());
+		return new GrayScale(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor, previewCheckbox.isSelected());
 	}
 
 	public void initialize() {
@@ -60,23 +60,23 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 
 	@FXML
 	public void onChange() {
-		service.setGrayScaleInformation(stateToInformation());
+		service.setGrayScale(stateToInformation());
 	}
 
 	@FXML
 	public void apply() {
-		service.applyGrayScaleInformation(stateToInformation());
+		service.applyGrayScale(stateToInformation());
 	}
 
 	@Override
 	public void onApplicationEvent(GrayScaleModifiedEvent event) {
 		Platform.runLater(() -> {
-			GrayScaleInformation information = event.getGrayScaleInformation();
+			GrayScale information = event.getGrayScaleInformation();
 			informationToState(information);
 		});
 	}
 
-	private synchronized void informationToState(GrayScaleInformation information) {
+	private synchronized void informationToState(GrayScale information) {
 		updating = true;
 		try {
 			redSlider.setValue(information.getRedSlider());

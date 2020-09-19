@@ -1,9 +1,9 @@
 package com.a6raywa1cher.imageprocessingspring.service.impl;
 
-import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
+import com.a6raywa1cher.imageprocessingspring.model.Brightness;
+import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
-import com.a6raywa1cher.imageprocessingspring.model.NegativeInformation;
+import com.a6raywa1cher.imageprocessingspring.model.Negative;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
@@ -67,25 +67,25 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	}
 
 	private ImageBundle convertImage(Image before, boolean preview) {
-		GrayScaleInformation grayScaleInformation = imageRepository.getGrayScaleInformation();
-		BrightnessInformation brightnessInformation = imageRepository.getBrightnessInformation();
-		NegativeInformation negativeInformation = imageRepository.getNegativeInformation();
+		GrayScale grayScale = imageRepository.getGrayScale();
+		Brightness brightness = imageRepository.getBrightness();
+		Negative negative = imageRepository.getNegative();
 		Image after = before;
 		if (preview) {
-			if (grayScaleInformation.isPreview()) {
+			if (grayScale.isPreview()) {
 				after = grayScale(after,
-					grayScaleInformation.getRedSlider(),
-					grayScaleInformation.getGreenSlider(),
-					grayScaleInformation.getBlueSlider(),
-					grayScaleInformation.getBaseColor());
+					grayScale.getRedSlider(),
+					grayScale.getGreenSlider(),
+					grayScale.getBlueSlider(),
+					grayScale.getBaseColor());
 			}
-			if (brightnessInformation.isPreview()) {
+			if (brightness.isPreview()) {
 				after = brightness(after,
-					brightnessInformation.getDelta());
+					brightness.getDelta());
 			}
-			if (negativeInformation.isPreview()) {
+			if (negative.isPreview()) {
 				after = negative(after,
-					negativeInformation.getThreshold());
+					negative.getThreshold());
 			}
 		}
 		return new ImageBundle(before, after, calculateHistogram(after));
@@ -127,45 +127,45 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	}
 
 	@Override
-	public void setGrayScaleInformation(GrayScaleInformation information) {
-		imageRepository.setGrayScaleInformation(information);
+	public void setGrayScale(GrayScale information) {
+		imageRepository.setGrayScale(information);
 		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
 	}
 
 	@Override
-	public void applyGrayScaleInformation(GrayScaleInformation grayScaleInformation) {
-		imageRepository.setGrayScaleInformation(grayScaleInformation);
+	public void applyGrayScale(GrayScale grayScale) {
+		imageRepository.setGrayScale(grayScale);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScaleInformation.getRedSlider(),
-			grayScaleInformation.getGreenSlider(), grayScaleInformation.getBlueSlider(), grayScaleInformation.getBaseColor());
+		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScale.getRedSlider(),
+			grayScale.getGreenSlider(), grayScale.getBlueSlider(), grayScale.getBaseColor());
 		convertAndSave(newImage, true);
 	}
 
 	@Override
-	public void setBrightnessInformation(BrightnessInformation brightnessInformation) {
-		imageRepository.setBrightnessInformation(brightnessInformation);
+	public void setBrightness(Brightness brightness) {
+		imageRepository.setBrightness(brightness);
 		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
 	}
 
 	@Override
-	public void applyBrightnessInformation(BrightnessInformation brightnessInformation) {
-		imageRepository.setBrightnessInformation(brightnessInformation);
+	public void applyBrightness(Brightness brightness) {
+		imageRepository.setBrightness(brightness);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = brightness(imageBundle.getCurrentImage(), brightnessInformation.getDelta());
+		Image newImage = brightness(imageBundle.getCurrentImage(), brightness.getDelta());
 		convertAndSave(newImage, true);
 	}
 
 	@Override
-	public void setNegativeInformation(NegativeInformation negativeInformation) {
-		imageRepository.setNegativeInformation(negativeInformation);
+	public void setNegative(Negative negative) {
+		imageRepository.setNegative(negative);
 		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
 	}
 
 	@Override
-	public void applyNegativeInformation(NegativeInformation negativeInformation) {
-		imageRepository.setNegativeInformation(negativeInformation);
+	public void applyNegative(Negative negative) {
+		imageRepository.setNegative(negative);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = negative(imageBundle.getCurrentImage(), negativeInformation.getThreshold());
+		Image newImage = negative(imageBundle.getCurrentImage(), negative.getThreshold());
 		convertAndSave(newImage, true);
 	}
 
@@ -197,7 +197,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		return out;
 	}
 
-	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight, GrayScaleInformation.BaseColor baseColor) {
+	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight, GrayScale.BaseColor baseColor) {
 		double normalizedRedWeight = normalize(redWeight, redWeight, greenWeight, blueWeight);
 		double normalizedGreenWeight = normalize(greenWeight, redWeight, greenWeight, blueWeight);
 		double normalizedBlueWeight = normalize(blueWeight, redWeight, greenWeight, blueWeight);
