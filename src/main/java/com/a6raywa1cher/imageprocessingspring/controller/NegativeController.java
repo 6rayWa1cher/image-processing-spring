@@ -1,6 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
-import com.a6raywa1cher.imageprocessingspring.event.NegativeModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.Negative;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class NegativeController implements ApplicationListener<NegativeModifiedEvent> {
+public class NegativeController implements ApplicationListener<ConfigModifiedEvent> {
 	private final ImageProcessingService service;
 	public Slider slider;
 	public Label sliderLabel;
@@ -50,18 +50,19 @@ public class NegativeController implements ApplicationListener<NegativeModifiedE
 
 	@FXML
 	public void onChange() {
-		service.setNegative(stateToInformation());
+		service.setConfig(stateToInformation(), Negative.class);
 	}
 
 	@FXML
 	public void apply() {
-		service.applyNegative(stateToInformation());
+		service.applyConfig(stateToInformation(), Negative.class);
 	}
 
 	@Override
-	public void onApplicationEvent(NegativeModifiedEvent event) {
+	public void onApplicationEvent(ConfigModifiedEvent event) {
+		if (!event.getClazz().equals(Negative.class)) return;
 		Platform.runLater(() -> {
-			Negative negative = event.getNegativeInformation();
+			Negative negative = (Negative) event.getConfig();
 			informationToState(negative);
 		});
 	}

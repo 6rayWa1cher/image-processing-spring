@@ -1,16 +1,14 @@
 package com.a6raywa1cher.imageprocessingspring.service.impl;
 
-import com.a6raywa1cher.imageprocessingspring.model.Brightness;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
+import com.a6raywa1cher.imageprocessingspring.model.Config;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
-import com.a6raywa1cher.imageprocessingspring.model.Negative;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
+import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
 import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.image.WritablePixelFormat;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,20 +17,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.LookupOp;
-import java.awt.image.LookupTable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 
 @Service
 @Slf4j
@@ -45,47 +41,16 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		this.imageRepository = imageRepository;
 	}
 
-	private int getWidth(Image image) {
-		return (int) Math.ceil(image.getWidth());
-	}
-
-	private int getHeight(Image image) {
-		return (int) Math.ceil(image.getHeight());
-	}
-
-	private WritableImage imageToWriteable(Image image) {
-		return new WritableImage(image.getPixelReader(),
-			getWidth(image), getHeight(image));
-	}
-
-	private double normalize(double value, double... elements) {
-		return value / Arrays.stream(elements).sum();
-	}
-
-	private double normalize(double value, int... elements) {
-		return value / Arrays.stream(elements).sum();
-	}
-
 	private ImageBundle convertImage(Image before, boolean preview) {
-		GrayScale grayScale = imageRepository.getGrayScale();
-		Brightness brightness = imageRepository.getBrightness();
-		Negative negative = imageRepository.getNegative();
+		Map<Class<?>, Config> allConfigs = imageRepository.getAllConfigs();
 		Image after = before;
 		if (preview) {
-			if (grayScale.isPreview()) {
-				after = grayScale(after,
-					grayScale.getRedSlider(),
-					grayScale.getGreenSlider(),
-					grayScale.getBlueSlider(),
-					grayScale.getBaseColor());
-			}
-			if (brightness.isPreview()) {
-				after = brightness(after,
-					brightness.getDelta());
-			}
-			if (negative.isPreview()) {
-				after = negative(after,
-					negative.getThreshold());
+			for (Map.Entry<Class<?>, Config> entry : allConfigs.entrySet()) {
+				Config o = entry.getValue();
+				if (o.isPreviewEnabled()) {
+					Transformation<?> transformation = o.getTransformation();
+					after = transformation.transform(after);
+				}
 			}
 		}
 		return new ImageBundle(before, after, calculateHistogram(after));
@@ -100,8 +65,6 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 
 	private double[] calculateHistogram(Image image) {
 		PixelReader pixelReader = image.getPixelReader();
-//		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-//		int[] buffer = bufferedImage.getData().getPixels(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), (int[]) null);
 		int[] statistics = new int[256];
 		int width = getWidth(image);
 		int height = getHeight(image);
@@ -127,45 +90,17 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	}
 
 	@Override
-	public void setGrayScale(GrayScale information) {
-		imageRepository.setGrayScale(information);
+	public <T extends Config> void setConfig(T config, Class<T> tClass) {
+		imageRepository.setConfig(config, tClass);
 		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
 	}
 
 	@Override
-	public void applyGrayScale(GrayScale grayScale) {
-		imageRepository.setGrayScale(grayScale);
+	public <T extends Config> void applyConfig(T config, Class<T> tClass) {
+		imageRepository.setConfig(config, tClass);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScale.getRedSlider(),
-			grayScale.getGreenSlider(), grayScale.getBlueSlider(), grayScale.getBaseColor());
-		convertAndSave(newImage, true);
-	}
-
-	@Override
-	public void setBrightness(Brightness brightness) {
-		imageRepository.setBrightness(brightness);
-		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
-	}
-
-	@Override
-	public void applyBrightness(Brightness brightness) {
-		imageRepository.setBrightness(brightness);
-		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = brightness(imageBundle.getCurrentImage(), brightness.getDelta());
-		convertAndSave(newImage, true);
-	}
-
-	@Override
-	public void setNegative(Negative negative) {
-		imageRepository.setNegative(negative);
-		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
-	}
-
-	@Override
-	public void applyNegative(Negative negative) {
-		imageRepository.setNegative(negative);
-		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Image newImage = negative(imageBundle.getCurrentImage(), negative.getThreshold());
+		Transformation<?> transformation = config.getTransformation();
+		Image newImage = transformation.transform(imageBundle.getCurrentImage());
 		convertAndSave(newImage, true);
 	}
 
@@ -177,77 +112,6 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	@Override
 	public void saveToFile(File file) {
 		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), file);
-	}
-
-	private Image lookupTransform(String transformName, Image image, BiFunction<int[], int[], int[]> transformation) {
-		WritableImage writableImage = imageToWriteable(image);
-		long start = System.currentTimeMillis();
-		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
-		LookupTable lookupTable = new LookupTable(0, 4) {
-			@Override
-			public int[] lookupPixel(int[] src, int[] dest) {
-				return transformation.apply(src, dest);
-			}
-		};
-		LookupOp op = new LookupOp(lookupTable, new RenderingHints(null));
-		op.filter(bufferedImage, bufferedImage);
-		WritableImage out = SwingFXUtils.toFXImage(bufferedImage, writableImage);
-
-		log.info("{}: {}ms", transformName, System.currentTimeMillis() - start);
-		return out;
-	}
-
-	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight, GrayScale.BaseColor baseColor) {
-		double normalizedRedWeight = normalize(redWeight, redWeight, greenWeight, blueWeight);
-		double normalizedGreenWeight = normalize(greenWeight, redWeight, greenWeight, blueWeight);
-		double normalizedBlueWeight = normalize(blueWeight, redWeight, greenWeight, blueWeight);
-		return lookupTransform("grayScale", image, (src, dest) -> {
-			int intensity = (int) (normalizedRedWeight * src[0] +
-				normalizedGreenWeight * src[1] +
-				normalizedBlueWeight * src[2]);
-			switch (baseColor) {
-				case RED -> {
-					dest[0] = intensity;
-					dest[1] = 0x00;
-					dest[2] = 0x00;
-				}
-				case GREEN -> {
-					dest[0] = 0x00;
-					dest[1] = intensity;
-					dest[2] = 0x00;
-				}
-				case BLUE -> {
-					dest[0] = 0x00;
-					dest[1] = 0x00;
-					dest[2] = intensity;
-				}
-				case BLACK -> {
-					dest[0] = intensity;
-					dest[1] = intensity;
-					dest[2] = intensity;
-				}
-			}
-			return dest;
-		});
-	}
-
-	public Image brightness(Image image, double delta) {
-		Function<Double, Integer> localNormalize = (value) -> value < 0 ? 0 : (value > 255 ? 255 : value.intValue());
-		return lookupTransform("brightness", image, (src, dest) -> {
-			dest[0] = localNormalize.apply((double) src[0] + delta);
-			dest[1] = localNormalize.apply((double) src[1] + delta);
-			dest[2] = localNormalize.apply((double) src[2] + delta);
-			return dest;
-		});
-	}
-
-	public Image negative(Image image, double threshold) {
-		return lookupTransform("negative", image, (src, dest) -> {
-			for (int i = 0; i < 3; i++) {
-				dest[i] = src[i] >= threshold ? 255 - src[i] : src[i];
-			}
-			return dest;
-		});
 	}
 
 	@SneakyThrows

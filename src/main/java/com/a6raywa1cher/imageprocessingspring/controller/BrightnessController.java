@@ -1,6 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
-import com.a6raywa1cher.imageprocessingspring.event.BrightnessModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.Brightness;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class BrightnessController implements ApplicationListener<BrightnessModifiedEvent> {
+public class BrightnessController implements ApplicationListener<ConfigModifiedEvent> {
 	private final ImageProcessingService service;
 	public Slider slider;
 	public Label sliderLabel;
@@ -50,18 +50,19 @@ public class BrightnessController implements ApplicationListener<BrightnessModif
 
 	@FXML
 	public void onChange() {
-		service.setBrightness(stateToInformation());
+		service.setConfig(stateToInformation(), Brightness.class);
 	}
 
 	@FXML
 	public void apply() {
-		service.applyBrightness(stateToInformation());
+		service.applyConfig(stateToInformation(), Brightness.class);
 	}
 
 	@Override
-	public void onApplicationEvent(BrightnessModifiedEvent event) {
+	public void onApplicationEvent(ConfigModifiedEvent event) {
+		if (!event.getClazz().equals(Brightness.class)) return;
 		Platform.runLater(() -> {
-			Brightness brightness = event.getBrightnessInformation();
+			Brightness brightness = (Brightness) event.getConfig();
 			informationToState(brightness);
 		});
 	}

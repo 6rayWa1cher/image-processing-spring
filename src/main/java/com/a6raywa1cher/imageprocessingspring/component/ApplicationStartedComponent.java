@@ -1,6 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.component;
 
-import com.a6raywa1cher.imageprocessingspring.event.*;
+import com.a6raywa1cher.imageprocessingspring.event.JavaFXApplicationStartedEvent;
+import com.a6raywa1cher.imageprocessingspring.model.Config;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import com.a6raywa1cher.imageprocessingspring.service.ResourceService;
@@ -11,6 +12,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 @Order(2)
@@ -34,10 +37,10 @@ public class ApplicationStartedComponent implements ApplicationListener<JavaFXAp
 			resourceService.loadStaticImage("sampleImage.png"),
 			resourceService.getStaticImageURL("sampleImage.png").toString()
 		);
-		ctx.publishEvent(new GrayScaleModifiedEvent(imageRepository.getGrayScale()));
-		ctx.publishEvent(new ImageModifiedEvent(imageRepository.getImageBundle()));
-		ctx.publishEvent(new BrightnessModifiedEvent(imageRepository.getBrightness()));
-		ctx.publishEvent(new NegativeModifiedEvent(imageRepository.getNegative()));
+		Map<Class<?>, Config> allConfigs = imageRepository.getAllConfigs();
+		for (Map.Entry<Class<?>, Config> entry : allConfigs.entrySet()) {
+			ctx.publishEvent(entry.getValue().getEvent());
+		}
 	}
 
 	@Override

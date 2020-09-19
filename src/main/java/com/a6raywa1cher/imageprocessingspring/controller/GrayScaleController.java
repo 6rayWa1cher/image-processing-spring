@@ -1,6 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
-import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @Slf4j
-public class GrayScaleController implements ApplicationListener<GrayScaleModifiedEvent> {
+public class GrayScaleController implements ApplicationListener<ConfigModifiedEvent> {
 	private final ImageProcessingService service;
 	public Slider redSlider;
 	public Label redSliderLabel;
@@ -43,39 +43,6 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 		return new GrayScale(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor, previewCheckbox.isSelected());
 	}
 
-	public void initialize() {
-		redSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (!updating) onChange();
-		});
-		greenSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (!updating) onChange();
-		});
-		blueSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (!updating) onChange();
-		});
-		colorChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
-			if (!updating) onChange();
-		});
-	}
-
-	@FXML
-	public void onChange() {
-		service.setGrayScale(stateToInformation());
-	}
-
-	@FXML
-	public void apply() {
-		service.applyGrayScale(stateToInformation());
-	}
-
-	@Override
-	public void onApplicationEvent(GrayScaleModifiedEvent event) {
-		Platform.runLater(() -> {
-			GrayScale information = event.getGrayScaleInformation();
-			informationToState(information);
-		});
-	}
-
 	private synchronized void informationToState(GrayScale information) {
 		updating = true;
 		try {
@@ -98,4 +65,39 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 			updating = false;
 		}
 	}
+
+	public void initialize() {
+		redSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+		greenSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+		blueSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+		colorChooser.valueProperty().addListener((observable, oldValue, newValue) -> {
+			if (!updating) onChange();
+		});
+	}
+
+	@FXML
+	public void onChange() {
+		service.setConfig(stateToInformation(), GrayScale.class);
+	}
+
+	@FXML
+	public void apply() {
+		service.applyConfig(stateToInformation(), GrayScale.class);
+	}
+
+	@Override
+	public void onApplicationEvent(ConfigModifiedEvent event) {
+		if (!event.getClazz().equals(GrayScale.class)) return;
+		Platform.runLater(() -> {
+			GrayScale information = (GrayScale) event.getConfig();
+			informationToState(information);
+		});
+	}
+
 }

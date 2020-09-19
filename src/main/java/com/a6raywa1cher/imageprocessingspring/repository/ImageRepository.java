@@ -1,9 +1,9 @@
 package com.a6raywa1cher.imageprocessingspring.repository;
 
-import com.a6raywa1cher.imageprocessingspring.model.Brightness;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
+import com.a6raywa1cher.imageprocessingspring.model.Config;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
-import com.a6raywa1cher.imageprocessingspring.model.Negative;
+
+import java.util.Map;
 
 public interface ImageRepository {
 	ImageBundle getImageBundle();
@@ -14,17 +14,11 @@ public interface ImageRepository {
 
 	void setImageBundle(ImageBundle imageBundle, int version);
 
-	GrayScale getGrayScale();
+	<T> T getConfig(Class<T> tClass);
 
-	void setGrayScale(GrayScale grayScale);
+	Map<Class<?>, Config> getAllConfigs();
 
-	Brightness getBrightness();
-
-	void setBrightness(Brightness brightness);
-
-	Negative getNegative();
-
-	void setNegative(Negative negative);
+	<T> void setConfig(T config, Class<T> tClass);
 
 	String getImageURL();
 

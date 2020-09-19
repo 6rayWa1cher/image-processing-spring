@@ -1,24 +1,14 @@
 package com.a6raywa1cher.imageprocessingspring.service;
 
-import com.a6raywa1cher.imageprocessingspring.model.Brightness;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
-import com.a6raywa1cher.imageprocessingspring.model.Negative;
+import com.a6raywa1cher.imageprocessingspring.model.Config;
 import javafx.scene.image.Image;
 
 import java.io.File;
 
 public interface ImageProcessingService {
-	void setGrayScale(GrayScale grayScale);
+	<T extends Config> void setConfig(T config, Class<T> tClass);
 
-	void applyGrayScale(GrayScale grayScale);
-
-	void setBrightness(Brightness brightness);
-
-	void applyBrightness(Brightness brightness);
-
-	void setNegative(Negative negative);
-
-	void applyNegative(Negative negative);
+	<T extends Config> void applyConfig(T config, Class<T> tClass);
 
 	void saveFile();
 
