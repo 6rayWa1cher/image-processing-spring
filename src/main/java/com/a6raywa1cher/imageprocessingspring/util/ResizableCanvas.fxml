@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.a6raywa1cher.imageprocessingspring.util.ResizableCanvas?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            prefHeight="400.0" prefWidth="600.0">
+    <ResizableCanvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0" width="200.0"
+                     AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0"/>
+</AnchorPane>

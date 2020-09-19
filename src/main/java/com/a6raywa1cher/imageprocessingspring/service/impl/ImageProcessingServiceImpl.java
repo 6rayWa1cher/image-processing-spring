@@ -1,5 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.service.impl;
 
+import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
@@ -7,7 +8,10 @@ import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
+import javafx.scene.image.WritablePixelFormat;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +24,12 @@ import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -52,14 +59,28 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		return value / Arrays.stream(elements).sum();
 	}
 
+	private double normalize(double value, int... elements) {
+		return value / Arrays.stream(elements).sum();
+	}
+
 	private ImageBundle convertImage(Image before, boolean preview) {
-		GrayScaleInformation information = imageRepository.getGrayScaleInformation();
+		GrayScaleInformation grayScaleInformation = imageRepository.getGrayScaleInformation();
+		BrightnessInformation brightnessInformation = imageRepository.getBrightnessInformation();
 		Image after = before;
-		if (preview && information.isPreview()) {
-			after = grayScale(before, information.getRedSlider(), information.getGreenSlider(), information.getBlueSlider(),
-				information.getBaseColor());
+		if (preview) {
+			if (grayScaleInformation.isPreview()) {
+				after = grayScale(after,
+					grayScaleInformation.getRedSlider(),
+					grayScaleInformation.getGreenSlider(),
+					grayScaleInformation.getBlueSlider(),
+					grayScaleInformation.getBaseColor());
+			}
+			if (brightnessInformation.isPreview()) {
+				after = brightness(after,
+					brightnessInformation.getDelta());
+			}
 		}
-		return new ImageBundle(before, after);
+		return new ImageBundle(before, after, calculateHistogram(after));
 	}
 
 	private void convertAndSave(Image before, boolean preview) {
@@ -67,6 +88,34 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 			int version = imageRepository.getImageBundleVersion();
 			imageRepository.setImageBundle(convertImage(before, preview), version);
 		}, executor);
+	}
+
+	private double[] calculateHistogram(Image image) {
+		PixelReader pixelReader = image.getPixelReader();
+//		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
+//		int[] buffer = bufferedImage.getData().getPixels(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), (int[]) null);
+		int[] statistics = new int[256];
+		int width = getWidth(image);
+		int height = getHeight(image);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(width * height * 4);
+		pixelReader.getPixels(0, 0, width, height, WritablePixelFormat.getByteBgraPreInstance(), byteBuffer, width * 4);
+		byte[] pixels = byteBuffer.array();
+		for (int i = 0; i < width * height; i++) {
+			int offset = 4 * i;
+			int intensity = (int) Math.min(
+				0.30d * Byte.toUnsignedInt(pixels[offset + 2]) +
+					0.59d * Byte.toUnsignedInt(pixels[offset + 1]) +
+					0.11d * Byte.toUnsignedInt(pixels[offset]),
+				255
+			);
+			statistics[intensity] += 1;
+		}
+		double[] out = new double[256];
+		for (int i = 0; i < statistics.length; i++) {
+			out[i] = normalize(statistics[i], statistics);
+		}
+		log.info("histogram: {}", Arrays.stream(out).mapToObj(Double::toString).map(s -> s.substring(0, Math.min(4, s.length()))).collect(Collectors.joining(",")));
+		return out;
 	}
 
 	@Override
@@ -81,6 +130,20 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		ImageBundle imageBundle = imageRepository.getImageBundle();
 		Image newImage = grayScale(imageBundle.getCurrentImage(), grayScaleInformation.getRedSlider(),
 			grayScaleInformation.getGreenSlider(), grayScaleInformation.getBlueSlider(), grayScaleInformation.getBaseColor());
+		convertAndSave(newImage, true);
+	}
+
+	@Override
+	public void setBrightnessInformation(BrightnessInformation brightnessInformation) {
+		imageRepository.setBrightnessInformation(brightnessInformation);
+		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
+	}
+
+	@Override
+	public void applyBrightnessInformation(BrightnessInformation brightnessInformation) {
+		imageRepository.setBrightnessInformation(brightnessInformation);
+		ImageBundle imageBundle = imageRepository.getImageBundle();
+		Image newImage = brightness(imageBundle.getCurrentImage(), brightnessInformation.getDelta());
 		convertAndSave(newImage, true);
 	}
 
@@ -142,15 +205,52 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		return out;
 	}
 
+	public Image brightness(Image image, double delta) {
+		WritableImage writableImage = imageToWriteable(image);
+		long start = System.currentTimeMillis();
+		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
+		LookupTable lookupTable = new LookupTable(0, 4) {
+			private int localNormalize(double value) {
+				if (value < 0) {
+					return 0;
+				} else if (value > 255) {
+					return 255;
+				} else {
+					return (int) value;
+				}
+			}
+
+			@Override
+			public int[] lookupPixel(int[] src, int[] dest) {
+				dest[0] = localNormalize((double) src[0] + delta);
+				dest[1] = localNormalize((double) src[1] + delta);
+				dest[2] = localNormalize((double) src[2] + delta);
+				return dest;
+			}
+		};
+		LookupOp op = new LookupOp(lookupTable, new RenderingHints(null));
+		op.filter(bufferedImage, bufferedImage);
+		WritableImage out = SwingFXUtils.toFXImage(bufferedImage, writableImage);
+
+		log.info("brightness: {}ms", System.currentTimeMillis() - start);
+		return out;
+	}
+
+	@SneakyThrows
 	private void saveToFile(Image img, File file) {
 		BufferedImage bImage = SwingFXUtils.fromFXImage(img, null);
+		File file1 = new File(new URL(file.toString()).toURI());
 		try {
-			String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
-			if (!ImageIO.write(bImage, extension != null ? extension : "png", file)) {
-				ImageIO.write(bImage, "png", file);
+			String extension = StringUtils.getFilenameExtension(file1.getAbsolutePath());
+			if (!ImageIO.write(bImage, extension != null ? extension : "png", file1)) {
+				ImageIO.write(bImage, "png", file1);
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			try {
+				ImageIO.write(bImage, "png", file1);
+			} catch (IOException e1) {
+				throw new RuntimeException(e1);
+			}
 		}
 	}
 

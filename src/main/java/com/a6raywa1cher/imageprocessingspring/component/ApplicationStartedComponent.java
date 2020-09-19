@@ -1,5 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.component;
 
+import com.a6raywa1cher.imageprocessingspring.event.BrightnessModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.JavaFXApplicationStartedEvent;
@@ -38,6 +39,7 @@ public class ApplicationStartedComponent implements ApplicationListener<JavaFXAp
 		);
 		ctx.publishEvent(new GrayScaleModifiedEvent(imageRepository.getGrayScaleInformation()));
 		ctx.publishEvent(new ImageModifiedEvent(imageRepository.getImageBundle()));
+		ctx.publishEvent(new BrightnessModifiedEvent(imageRepository.getBrightnessInformation()));
 	}
 
 	@Override

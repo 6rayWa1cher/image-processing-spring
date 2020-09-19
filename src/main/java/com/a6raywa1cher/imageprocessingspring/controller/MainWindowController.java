@@ -4,8 +4,11 @@ import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +17,24 @@ import org.springframework.stereotype.Controller;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
 public class MainWindowController implements ApplicationListener<ImageModifiedEvent> {
 	private final ImageProcessingService service;
+	public Canvas histogramCanvas;
 	public ImageView image;
+	private double[] cachedHistogramInfo = new double[256];
 
 	@Autowired
 	public MainWindowController(ImageProcessingService service) {
 		this.service = service;
+	}
+
+	public void initialize() {
+		histogramCanvas.widthProperty().addListener(e -> renderHistogram(cachedHistogramInfo));
+		histogramCanvas.heightProperty().addListener(e -> renderHistogram(cachedHistogramInfo));
 	}
 
 	@FXML
@@ -75,10 +86,36 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 		Platform.runLater(() -> {
 			Image currentViewImage = event.getImageBundle().getCurrentViewImage();
 			image.setImage(currentViewImage);
+			cachedHistogramInfo = event.getImageBundle().getHistogramMetric();
+			renderHistogram(cachedHistogramInfo);
 			if (currentViewImage != null) {
 				image.setFitWidth(currentViewImage.getWidth());
 				image.setFitHeight(currentViewImage.getHeight());
 			}
 		});
+	}
+
+	private Paint grayToColor(int value) {
+		String s = String.format("#%02X%02X%02X", value, value, value);
+		return Paint.valueOf(s);
+	}
+
+	private void renderHistogram(double[] metrics) {
+		double width = histogramCanvas.getWidth();
+		double height = histogramCanvas.getHeight() - 3d;
+		GraphicsContext gctx = histogramCanvas.getGraphicsContext2D();
+		gctx.setFill(Paint.valueOf("#A8A8FF"));
+		gctx.fillRect(0, 0, width, height);
+		if (metrics != null) {
+			double segmentSize = width / (double) metrics.length;
+			double maximum = Arrays.stream(metrics).max().orElseThrow();
+			for (int i = 0; i < 256; i++) {
+				double offset = i * segmentSize;
+				gctx.setFill(grayToColor(i));
+				double metric = metrics[i];
+				double columnHeight = height * metric / maximum;
+				gctx.fillRect(offset, height - columnHeight, segmentSize + 2d, columnHeight + 3d);
+			}
+		}
 	}
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.a6raywa1cher.imageprocessingspring.util.ResizableCanvas?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
@@ -18,8 +19,8 @@
                         <Menu mnemonicParsing="false" text="Open Recent"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" text="Close"/>
-                        <MenuItem mnemonicParsing="false" text="Save" onAction="#onSaveFile"/>
-                        <MenuItem mnemonicParsing="false" text="Save As…" onAction="#onSaveFileAs"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onSaveFile" text="Save"/>
+                        <MenuItem mnemonicParsing="false" onAction="#onSaveFileAs" text="Save As…"/>
                         <MenuItem mnemonicParsing="false" text="Revert"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
                         <MenuItem mnemonicParsing="false" text="Preferences…"/>
@@ -63,6 +64,8 @@
                                             <children>
                                                 <fx:include source="grayScale.fxml" AnchorPane.leftAnchor="0.0"
                                                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                                                <fx:include source="brightnessChanger.fxml" AnchorPane.leftAnchor="0.0"
+                                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="150.0"/>
                                             </children>
                                         </AnchorPane>
                                     </content>
@@ -104,6 +107,13 @@
                                 <Color blue="0.624" green="0.624" red="0.624" fx:id="x2"/>
                             </textFill>
                         </Label>
+                        <!--                        <Canvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0" width="200.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0" />-->
+
+                        <ResizableCanvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0"
+                                         width="200.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0"/>
+                        <Label layoutX="13.0" layoutY="41.0" text="Histogram"/>
+                        <Separator layoutX="11.0" layoutY="57.0" prefWidth="200.0" AnchorPane.leftAnchor="10.0"
+                                   AnchorPane.rightAnchor="10.0"/>
                     </children>
                 </AnchorPane>
             </items>

@@ -1,6 +1,5 @@
 package com.a6raywa1cher.imageprocessingspring.model;
 
-import javafx.scene.image.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,10 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImageBundle {
-	private Image currentImage;
+public class BrightnessInformation {
+	private double delta = 0;
 
-	private Image currentViewImage;
-
-	private double[] histogramMetric;
+	private boolean preview = false;
 }

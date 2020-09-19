@@ -1,7 +1,9 @@
 package com.a6raywa1cher.imageprocessingspring.repository.impl;
 
+import com.a6raywa1cher.imageprocessingspring.event.BrightnessModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
@@ -16,20 +18,22 @@ import java.util.concurrent.locks.ReentrantLock;
 @Repository
 @Slf4j
 public class ImageRepositoryImpl implements ImageRepository, ApplicationContextAware {
-	private ImageBundle imageBundle;
-
-	private String url;
-
 	private final ReentrantLock lock = new ReentrantLock();
+	private String url;
+	private ApplicationContext ctx;
 
-	private GrayScaleInformation grayScaleInformation;
+	private ImageBundle imageBundle;
 	private int imageBundleVersion;
 
-	private ApplicationContext ctx;
+	private GrayScaleInformation grayScaleInformation;
+
+	private BrightnessInformation brightnessInformation;
+
 
 	public ImageRepositoryImpl() {
 		imageBundle = new ImageBundle();
 		grayScaleInformation = new GrayScaleInformation();
+		brightnessInformation = new BrightnessInformation();
 	}
 
 	private void incrementImageBundleVersion() {
@@ -78,6 +82,23 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 			this.grayScaleInformation = information;
 			log.info(information.toString());
 			ctx.publishEvent(new GrayScaleModifiedEvent(information));
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public BrightnessInformation getBrightnessInformation() {
+		return brightnessInformation;
+	}
+
+	@Override
+	public void setBrightnessInformation(BrightnessInformation information) {
+		lock.lock();
+		try {
+			this.brightnessInformation = information;
+			log.info(information.toString());
+			ctx.publishEvent(new BrightnessModifiedEvent(information));
 		} finally {
 			lock.unlock();
 		}

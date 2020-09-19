@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 
@@ -26,7 +27,7 @@ public class GrayScaleController implements ApplicationListener<GrayScaleModifie
 
 	private volatile boolean updating;
 
-
+	@Autowired
 	public GrayScaleController(ImageProcessingService service) {
 		this.service = service;
 	}
