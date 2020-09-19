@@ -3,6 +3,7 @@ package com.a6raywa1cher.imageprocessingspring.service.impl;
 import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
+import com.a6raywa1cher.imageprocessingspring.model.NegativeInformation;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
@@ -29,6 +30,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +69,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	private ImageBundle convertImage(Image before, boolean preview) {
 		GrayScaleInformation grayScaleInformation = imageRepository.getGrayScaleInformation();
 		BrightnessInformation brightnessInformation = imageRepository.getBrightnessInformation();
+		NegativeInformation negativeInformation = imageRepository.getNegativeInformation();
 		Image after = before;
 		if (preview) {
 			if (grayScaleInformation.isPreview()) {
@@ -78,6 +82,10 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 			if (brightnessInformation.isPreview()) {
 				after = brightness(after,
 					brightnessInformation.getDelta());
+			}
+			if (negativeInformation.isPreview()) {
+				after = negative(after,
+					negativeInformation.getThreshold());
 			}
 		}
 		return new ImageBundle(before, after, calculateHistogram(after));
@@ -148,6 +156,20 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	}
 
 	@Override
+	public void setNegativeInformation(NegativeInformation negativeInformation) {
+		imageRepository.setNegativeInformation(negativeInformation);
+		convertAndSave(imageRepository.getImageBundle().getCurrentImage(), true);
+	}
+
+	@Override
+	public void applyNegativeInformation(NegativeInformation negativeInformation) {
+		imageRepository.setNegativeInformation(negativeInformation);
+		ImageBundle imageBundle = imageRepository.getImageBundle();
+		Image newImage = negative(imageBundle.getCurrentImage(), negativeInformation.getThreshold());
+		convertAndSave(newImage, true);
+	}
+
+	@Override
 	public void saveFile() {
 		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), new File(imageRepository.getImageURL()));
 	}
@@ -157,83 +179,75 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), file);
 	}
 
-	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight, GrayScaleInformation.BaseColor baseColor) {
+	private Image lookupTransform(String transformName, Image image, BiFunction<int[], int[], int[]> transformation) {
 		WritableImage writableImage = imageToWriteable(image);
-		double normalizedRedWeight = normalize(redWeight, redWeight, greenWeight, blueWeight);
-		double normalizedGreenWeight = normalize(greenWeight, redWeight, greenWeight, blueWeight);
-		double normalizedBlueWeight = normalize(blueWeight, redWeight, greenWeight, blueWeight);
 		long start = System.currentTimeMillis();
-
 		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
-
 		LookupTable lookupTable = new LookupTable(0, 4) {
 			@Override
 			public int[] lookupPixel(int[] src, int[] dest) {
-				int intensity = (int) (normalizedRedWeight * src[0] +
-					normalizedGreenWeight * src[1] +
-					normalizedBlueWeight * src[2]);
-				switch (baseColor) {
-					case RED -> {
-						dest[0] = intensity;
-						dest[1] = 0x00;
-						dest[2] = 0x00;
-					}
-					case GREEN -> {
-						dest[0] = 0x00;
-						dest[1] = intensity;
-						dest[2] = 0x00;
-					}
-					case BLUE -> {
-						dest[0] = 0x00;
-						dest[1] = 0x00;
-						dest[2] = intensity;
-					}
-					case BLACK -> {
-						dest[0] = intensity;
-						dest[1] = intensity;
-						dest[2] = intensity;
-					}
-				}
-				return dest;
+				return transformation.apply(src, dest);
 			}
 		};
 		LookupOp op = new LookupOp(lookupTable, new RenderingHints(null));
 		op.filter(bufferedImage, bufferedImage);
 		WritableImage out = SwingFXUtils.toFXImage(bufferedImage, writableImage);
 
-		log.info("grayscale: {}ms", System.currentTimeMillis() - start);
+		log.info("{}: {}ms", transformName, System.currentTimeMillis() - start);
 		return out;
 	}
 
-	public Image brightness(Image image, double delta) {
-		WritableImage writableImage = imageToWriteable(image);
-		long start = System.currentTimeMillis();
-		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
-		LookupTable lookupTable = new LookupTable(0, 4) {
-			private int localNormalize(double value) {
-				if (value < 0) {
-					return 0;
-				} else if (value > 255) {
-					return 255;
-				} else {
-					return (int) value;
+	public Image grayScale(Image image, double redWeight, double greenWeight, double blueWeight, GrayScaleInformation.BaseColor baseColor) {
+		double normalizedRedWeight = normalize(redWeight, redWeight, greenWeight, blueWeight);
+		double normalizedGreenWeight = normalize(greenWeight, redWeight, greenWeight, blueWeight);
+		double normalizedBlueWeight = normalize(blueWeight, redWeight, greenWeight, blueWeight);
+		return lookupTransform("grayScale", image, (src, dest) -> {
+			int intensity = (int) (normalizedRedWeight * src[0] +
+				normalizedGreenWeight * src[1] +
+				normalizedBlueWeight * src[2]);
+			switch (baseColor) {
+				case RED -> {
+					dest[0] = intensity;
+					dest[1] = 0x00;
+					dest[2] = 0x00;
+				}
+				case GREEN -> {
+					dest[0] = 0x00;
+					dest[1] = intensity;
+					dest[2] = 0x00;
+				}
+				case BLUE -> {
+					dest[0] = 0x00;
+					dest[1] = 0x00;
+					dest[2] = intensity;
+				}
+				case BLACK -> {
+					dest[0] = intensity;
+					dest[1] = intensity;
+					dest[2] = intensity;
 				}
 			}
+			return dest;
+		});
+	}
 
-			@Override
-			public int[] lookupPixel(int[] src, int[] dest) {
-				dest[0] = localNormalize((double) src[0] + delta);
-				dest[1] = localNormalize((double) src[1] + delta);
-				dest[2] = localNormalize((double) src[2] + delta);
-				return dest;
+	public Image brightness(Image image, double delta) {
+		Function<Double, Integer> localNormalize = (value) -> value < 0 ? 0 : (value > 255 ? 255 : value.intValue());
+		return lookupTransform("brightness", image, (src, dest) -> {
+			dest[0] = localNormalize.apply((double) src[0] + delta);
+			dest[1] = localNormalize.apply((double) src[1] + delta);
+			dest[2] = localNormalize.apply((double) src[2] + delta);
+			return dest;
+		});
+	}
+
+	public Image negative(Image image, double threshold) {
+		return lookupTransform("negative", image, (src, dest) -> {
+			for (int i = 0; i < 3; i++) {
+				dest[i] = src[i] >= threshold ? 255 - src[i] : src[i];
 			}
-		};
-		LookupOp op = new LookupOp(lookupTable, new RenderingHints(null));
-		op.filter(bufferedImage, bufferedImage);
-		WritableImage out = SwingFXUtils.toFXImage(bufferedImage, writableImage);
-
-		log.info("brightness: {}ms", System.currentTimeMillis() - start);
-		return out;
+			return dest;
+		});
 	}
 
 	@SneakyThrows

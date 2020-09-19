@@ -3,9 +3,11 @@ package com.a6raywa1cher.imageprocessingspring.repository.impl;
 import com.a6raywa1cher.imageprocessingspring.event.BrightnessModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.GrayScaleModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.event.NegativeModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
+import com.a6raywa1cher.imageprocessingspring.model.NegativeInformation;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -29,11 +31,14 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 
 	private BrightnessInformation brightnessInformation;
 
+	private NegativeInformation negativeInformation;
+
 
 	public ImageRepositoryImpl() {
 		imageBundle = new ImageBundle();
 		grayScaleInformation = new GrayScaleInformation();
 		brightnessInformation = new BrightnessInformation();
+		negativeInformation = new NegativeInformation();
 	}
 
 	private void incrementImageBundleVersion() {
@@ -99,6 +104,23 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 			this.brightnessInformation = information;
 			log.info(information.toString());
 			ctx.publishEvent(new BrightnessModifiedEvent(information));
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public NegativeInformation getNegativeInformation() {
+		return negativeInformation;
+	}
+
+	@Override
+	public void setNegativeInformation(NegativeInformation negativeInformation) {
+		lock.lock();
+		try {
+			this.negativeInformation = negativeInformation;
+			log.info(negativeInformation.toString());
+			ctx.publishEvent(new NegativeModifiedEvent(negativeInformation));
 		} finally {
 			lock.unlock();
 		}

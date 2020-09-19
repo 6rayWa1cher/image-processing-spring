@@ -3,6 +3,7 @@ package com.a6raywa1cher.imageprocessingspring.repository;
 import com.a6raywa1cher.imageprocessingspring.model.BrightnessInformation;
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleInformation;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
+import com.a6raywa1cher.imageprocessingspring.model.NegativeInformation;
 
 public interface ImageRepository {
 	ImageBundle getImageBundle();
@@ -20,6 +21,10 @@ public interface ImageRepository {
 	BrightnessInformation getBrightnessInformation();
 
 	void setBrightnessInformation(BrightnessInformation brightnessInformation);
+
+	NegativeInformation getNegativeInformation();
+
+	void setNegativeInformation(NegativeInformation negativeInformation);
 
 	String getImageURL();
 
