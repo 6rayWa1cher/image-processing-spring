@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.Brightness;
+import com.a6raywa1cher.imageprocessingspring.model.BrightnessConfig;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -27,16 +27,16 @@ public class BrightnessController implements ApplicationListener<ConfigModifiedE
 		this.service = service;
 	}
 
-	private synchronized Brightness stateToInformation() {
-		return new Brightness(slider.getValue(), previewCheckbox.isSelected());
+	private synchronized BrightnessConfig stateToInformation() {
+		return new BrightnessConfig(slider.getValue(), previewCheckbox.isSelected());
 	}
 
-	private synchronized void informationToState(Brightness brightness) {
+	private synchronized void informationToState(BrightnessConfig brightnessConfig) {
 		updating = true;
 		try {
-			slider.setValue(brightness.getDelta());
-			sliderLabel.setText(Integer.toString((int) brightness.getDelta()));
-			previewCheckbox.setSelected(brightness.isPreview());
+			slider.setValue(brightnessConfig.getDelta());
+			sliderLabel.setText(Integer.toString((int) brightnessConfig.getDelta()));
+			previewCheckbox.setSelected(brightnessConfig.isPreview());
 		} finally {
 			updating = false;
 		}
@@ -50,20 +50,20 @@ public class BrightnessController implements ApplicationListener<ConfigModifiedE
 
 	@FXML
 	public void onChange() {
-		service.setConfig(stateToInformation(), Brightness.class);
+		service.setConfig(stateToInformation(), BrightnessConfig.class);
 	}
 
 	@FXML
 	public void apply() {
-		service.applyConfig(stateToInformation(), Brightness.class);
+		service.applyConfig(stateToInformation(), BrightnessConfig.class);
 	}
 
 	@Override
 	public void onApplicationEvent(ConfigModifiedEvent event) {
-		if (!event.getClazz().equals(Brightness.class)) return;
+		if (!event.getClazz().equals(BrightnessConfig.class)) return;
 		Platform.runLater(() -> {
-			Brightness brightness = (Brightness) event.getConfig();
-			informationToState(brightness);
+			BrightnessConfig brightnessConfig = (BrightnessConfig) event.getConfig();
+			informationToState(brightnessConfig);
 		});
 	}
 }

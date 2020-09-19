@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
+import com.a6raywa1cher.imageprocessingspring.model.GrayScaleConfig;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -32,18 +32,18 @@ public class GrayScaleController implements ApplicationListener<ConfigModifiedEv
 		this.service = service;
 	}
 
-	private synchronized GrayScale stateToInformation() {
-		GrayScale.BaseColor baseColor;
+	private synchronized GrayScaleConfig stateToInformation() {
+		GrayScaleConfig.BaseColor baseColor;
 		switch (colorChooser.getValue()) {
-			case "Red" -> baseColor = GrayScale.BaseColor.RED;
-			case "Green" -> baseColor = GrayScale.BaseColor.GREEN;
-			case "Blue" -> baseColor = GrayScale.BaseColor.BLUE;
-			default -> baseColor = GrayScale.BaseColor.BLACK;
+			case "Red" -> baseColor = GrayScaleConfig.BaseColor.RED;
+			case "Green" -> baseColor = GrayScaleConfig.BaseColor.GREEN;
+			case "Blue" -> baseColor = GrayScaleConfig.BaseColor.BLUE;
+			default -> baseColor = GrayScaleConfig.BaseColor.BLACK;
 		}
-		return new GrayScale(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor, previewCheckbox.isSelected());
+		return new GrayScaleConfig(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), baseColor, previewCheckbox.isSelected());
 	}
 
-	private synchronized void informationToState(GrayScale information) {
+	private synchronized void informationToState(GrayScaleConfig information) {
 		updating = true;
 		try {
 			redSlider.setValue(information.getRedSlider());
@@ -83,19 +83,19 @@ public class GrayScaleController implements ApplicationListener<ConfigModifiedEv
 
 	@FXML
 	public void onChange() {
-		service.setConfig(stateToInformation(), GrayScale.class);
+		service.setConfig(stateToInformation(), GrayScaleConfig.class);
 	}
 
 	@FXML
 	public void apply() {
-		service.applyConfig(stateToInformation(), GrayScale.class);
+		service.applyConfig(stateToInformation(), GrayScaleConfig.class);
 	}
 
 	@Override
 	public void onApplicationEvent(ConfigModifiedEvent event) {
-		if (!event.getClazz().equals(GrayScale.class)) return;
+		if (!event.getClazz().equals(GrayScaleConfig.class)) return;
 		Platform.runLater(() -> {
-			GrayScale information = (GrayScale) event.getConfig();
+			GrayScaleConfig information = (GrayScaleConfig) event.getConfig();
 			informationToState(information);
 		});
 	}

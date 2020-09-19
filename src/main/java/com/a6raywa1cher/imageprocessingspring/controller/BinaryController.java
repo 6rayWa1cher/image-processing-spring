@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.NegativeConfig;
+import com.a6raywa1cher.imageprocessingspring.model.BinaryConfig;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class NegativeController implements ApplicationListener<ConfigModifiedEvent> {
+public class BinaryController implements ApplicationListener<ConfigModifiedEvent> {
 	private final ImageProcessingService service;
 	public Slider slider;
 	public Label sliderLabel;
@@ -23,20 +23,20 @@ public class NegativeController implements ApplicationListener<ConfigModifiedEve
 	private volatile boolean updating;
 
 	@Autowired
-	public NegativeController(ImageProcessingService service) {
+	public BinaryController(ImageProcessingService service) {
 		this.service = service;
 	}
 
-	private synchronized NegativeConfig stateToInformation() {
-		return new NegativeConfig(slider.getValue(), previewCheckbox.isSelected());
+	private synchronized BinaryConfig stateToInformation() {
+		return new BinaryConfig(slider.getValue(), previewCheckbox.isSelected());
 	}
 
-	private synchronized void informationToState(NegativeConfig negativeConfig) {
+	private synchronized void informationToState(BinaryConfig binaryConfig) {
 		updating = true;
 		try {
-			slider.setValue(negativeConfig.getThreshold());
-			sliderLabel.setText(Integer.toString((int) negativeConfig.getThreshold()));
-			previewCheckbox.setSelected(negativeConfig.isPreview());
+			slider.setValue(binaryConfig.getThreshold());
+			sliderLabel.setText(Integer.toString((int) binaryConfig.getThreshold()));
+			previewCheckbox.setSelected(binaryConfig.isPreview());
 		} finally {
 			updating = false;
 		}
@@ -50,20 +50,20 @@ public class NegativeController implements ApplicationListener<ConfigModifiedEve
 
 	@FXML
 	public void onChange() {
-		service.setConfig(stateToInformation(), NegativeConfig.class);
+		service.setConfig(stateToInformation(), BinaryConfig.class);
 	}
 
 	@FXML
 	public void apply() {
-		service.applyConfig(stateToInformation(), NegativeConfig.class);
+		service.applyConfig(stateToInformation(), BinaryConfig.class);
 	}
 
 	@Override
 	public void onApplicationEvent(ConfigModifiedEvent event) {
-		if (!event.getClazz().equals(NegativeConfig.class)) return;
+		if (!event.getClazz().equals(BinaryConfig.class)) return;
 		Platform.runLater(() -> {
-			NegativeConfig negativeConfig = (NegativeConfig) event.getConfig();
-			informationToState(negativeConfig);
+			BinaryConfig binaryConfig = (BinaryConfig) event.getConfig();
+			informationToState(binaryConfig);
 		});
 	}
 }

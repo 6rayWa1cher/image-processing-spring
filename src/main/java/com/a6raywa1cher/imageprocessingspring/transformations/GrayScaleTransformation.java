@@ -1,21 +1,18 @@
 package com.a6raywa1cher.imageprocessingspring.transformations;
 
-import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.GrayScale;
+import com.a6raywa1cher.imageprocessingspring.model.GrayScaleConfig;
 
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.normalize;
 
-public class GrayScaleTransformation extends AbstractLookupTransformation<GrayScale> {
-	private final GrayScale grayScale;
+public class GrayScaleTransformation extends AbstractLookupTransformation<GrayScaleConfig> {
 	private final double normalizedRedWeight;
 	private final double normalizedGreenWeight;
 	private final double normalizedBlueWeight;
-	private final GrayScale.BaseColor baseColor;
+	private final GrayScaleConfig.BaseColor baseColor;
 
-	public GrayScaleTransformation(GrayScale grayScale) {
-		this.grayScale = grayScale;
-		double redWeight = grayScale.getRedSlider(), greenWeight = grayScale.getGreenSlider(), blueWeight = grayScale.getBlueSlider();
-		baseColor = grayScale.getBaseColor();
+	public GrayScaleTransformation(GrayScaleConfig grayScaleConfig) {
+		double redWeight = grayScaleConfig.getRedSlider(), greenWeight = grayScaleConfig.getGreenSlider(), blueWeight = grayScaleConfig.getBlueSlider();
+		baseColor = grayScaleConfig.getBaseColor();
 		normalizedRedWeight = normalize(redWeight, redWeight, greenWeight, blueWeight);
 		normalizedGreenWeight = normalize(greenWeight, redWeight, greenWeight, blueWeight);
 		normalizedBlueWeight = normalize(blueWeight, redWeight, greenWeight, blueWeight);
@@ -49,10 +46,5 @@ public class GrayScaleTransformation extends AbstractLookupTransformation<GraySc
 			}
 		}
 		return dest;
-	}
-
-	@Override
-	public ConfigModifiedEvent<GrayScale> getEvent() {
-		return new ConfigModifiedEvent<>(grayScale, GrayScale.class);
 	}
 }

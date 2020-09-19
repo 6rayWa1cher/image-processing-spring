@@ -1,15 +1,12 @@
 package com.a6raywa1cher.imageprocessingspring.transformations;
 
-import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.Negative;
+import com.a6raywa1cher.imageprocessingspring.model.NegativeConfig;
 
-public class NegativeTransformation extends AbstractLookupTransformation<Negative> {
-	private final Negative negative;
+public class NegativeTransformation extends AbstractLookupTransformation<NegativeConfig> {
 	private final double threshold;
 
-	public NegativeTransformation(Negative negative) {
-		this.negative = negative;
-		threshold = negative.getThreshold();
+	public NegativeTransformation(NegativeConfig negativeConfig) {
+		threshold = negativeConfig.getThreshold();
 	}
 
 	@Override
@@ -18,10 +15,5 @@ public class NegativeTransformation extends AbstractLookupTransformation<Negativ
 			dest[i] = src[i] >= threshold ? 255 - src[i] : src[i];
 		}
 		return dest;
-	}
-
-	@Override
-	public ConfigModifiedEvent<Negative> getEvent() {
-		return new ConfigModifiedEvent<>(negative, Negative.class);
 	}
 }

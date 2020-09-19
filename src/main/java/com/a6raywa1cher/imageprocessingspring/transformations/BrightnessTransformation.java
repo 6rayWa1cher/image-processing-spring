@@ -1,15 +1,12 @@
 package com.a6raywa1cher.imageprocessingspring.transformations;
 
-import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.Brightness;
+import com.a6raywa1cher.imageprocessingspring.model.BrightnessConfig;
 
-public class BrightnessTransformation extends AbstractLookupTransformation<Brightness> {
-	private final Brightness brightness;
+public class BrightnessTransformation extends AbstractLookupTransformation<BrightnessConfig> {
 	private final double delta;
 
-	public BrightnessTransformation(Brightness brightness) {
-		this.brightness = brightness;
-		delta = brightness.getDelta();
+	public BrightnessTransformation(BrightnessConfig brightnessConfig) {
+		delta = brightnessConfig.getDelta();
 	}
 
 	@Override
@@ -19,10 +16,5 @@ public class BrightnessTransformation extends AbstractLookupTransformation<Brigh
 			dest[i] = value < 0 ? 0 : (value > 255 ? 255 : (int) value);
 		}
 		return dest;
-	}
-
-	@Override
-	public ConfigModifiedEvent<Brightness> getEvent() {
-		return new ConfigModifiedEvent<>(brightness, Brightness.class);
 	}
 }

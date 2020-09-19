@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class GrayScale implements Config {
+public class GrayScaleConfig implements Config {
 	private double redSlider = 30d;
 
 	private double greenSlider = 59d;
@@ -19,7 +19,7 @@ public class GrayScale implements Config {
 
 	private boolean preview = false;
 
-	public GrayScale(double redSlider, double greenSlider, double blueSlider, BaseColor baseColor, boolean preview) {
+	public GrayScaleConfig(double redSlider, double greenSlider, double blueSlider, BaseColor baseColor, boolean preview) {
 		this.redSlider = redSlider;
 		this.greenSlider = greenSlider;
 		this.blueSlider = blueSlider;
@@ -39,7 +39,7 @@ public class GrayScale implements Config {
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {
-		return new ConfigModifiedEvent<>(this, GrayScale.class);
+		return new ConfigModifiedEvent<>(this, GrayScaleConfig.class);
 	}
 
 	@Override

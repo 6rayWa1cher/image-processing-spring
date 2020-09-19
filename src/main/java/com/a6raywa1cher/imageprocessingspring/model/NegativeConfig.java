@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Negative implements Config {
+public class NegativeConfig implements Config {
 	private double threshold = 0;
 
 	private boolean preview;
@@ -27,7 +27,7 @@ public class Negative implements Config {
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {
-		return new ConfigModifiedEvent<>(this, Negative.class);
+		return new ConfigModifiedEvent<>(this, NegativeConfig.class);
 	}
 
 	@Override

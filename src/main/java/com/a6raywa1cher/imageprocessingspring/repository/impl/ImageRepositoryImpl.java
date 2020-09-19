@@ -1,7 +1,8 @@
 package com.a6raywa1cher.imageprocessingspring.repository.impl;
 
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.*;
+import com.a6raywa1cher.imageprocessingspring.model.Config;
+import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -26,12 +27,9 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 	private int imageBundleVersion;
 
 
-	public ImageRepositoryImpl() {
+	public ImageRepositoryImpl(Map<Class<?>, Config> container) {
 		imageBundle = new ImageBundle();
-		container = new HashMap<>();
-		container.put(GrayScale.class, new GrayScale());
-		container.put(Negative.class, new Negative());
-		container.put(Brightness.class, new Brightness());
+		this.container = container;
 	}
 
 	private void incrementImageBundleVersion() {

@@ -68,6 +68,8 @@
                                                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="150.0"/>
                                                 <fx:include source="negative.fxml" AnchorPane.leftAnchor="0.0"
                                                             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="225.0"/>
+                                                <fx:include source="binary.fxml" AnchorPane.leftAnchor="0.0"
+                                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="300.0"/>
                                             </children>
                                         </AnchorPane>
                                     </content>

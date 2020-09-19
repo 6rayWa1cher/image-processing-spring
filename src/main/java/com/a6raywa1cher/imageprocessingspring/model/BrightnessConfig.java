@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Brightness implements Config {
+public class BrightnessConfig implements Config {
 	private double delta = 0;
 
 	private boolean preview = false;
@@ -27,7 +27,7 @@ public class Brightness implements Config {
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {
-		return new ConfigModifiedEvent<>(this, Brightness.class);
+		return new ConfigModifiedEvent<>(this, BrightnessConfig.class);
 	}
 
 	@Override

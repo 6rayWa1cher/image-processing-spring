@@ -31,7 +31,7 @@ public abstract class AbstractLookupTransformation<T> implements Transformation<
 		op.filter(bufferedImage, bufferedImage);
 		WritableImage out = SwingFXUtils.toFXImage(bufferedImage, writableImage);
 
-		log.info("{}: {}ms", this.getEvent().getClazz().getSimpleName(), System.currentTimeMillis() - start);
+		log.info("{}: {}ms", this.getClass().getSimpleName(), System.currentTimeMillis() - start);
 		return out;
 	}
 }
