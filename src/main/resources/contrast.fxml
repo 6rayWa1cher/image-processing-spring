@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="109.0" prefWidth="136.0"
+            xmlns="http://javafx.com/javafx/11.0.1"
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.ContrastController"
+>
+    <children>
+        <Label text="Contrast"/>
+        <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+        <AnchorPane layoutY="21.0" prefHeight="91.0" prefWidth="136.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <children>
+                <AnchorPane AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <Slider fx:id="leftSlider" layoutX="24.0" layoutY="1.0" max="255.0" prefHeight="14.0"
+                                prefWidth="84.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0"/>
+                        <Label fx:id="leftSliderLabel" alignment="CENTER" layoutX="180.8000030517578" prefHeight="17.0"
+                               prefWidth="20.0" text="0" textAlignment="CENTER" AnchorPane.rightAnchor="0.0"/>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="20.0" text="L"
+                               textAlignment="CENTER" AnchorPane.leftAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="65.0" prefHeight="22.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <CheckBox fx:id="previewCheckbox" layoutY="3.0" mnemonicParsing="false" onAction="#onChange"
+                                  text="Preview" AnchorPane.leftAnchor="0.0"/>
+                        <Button fx:id="applyButton" layoutX="148.0" layoutY="-1.0" mnemonicParsing="false"
+                                onAction="#apply" text="Apply" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="17.0" prefHeight="17.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <Slider fx:id="rightSlider" layoutX="24.0" layoutY="1.0" max="255.0" min="1" prefHeight="14.0"
+                                prefWidth="84.0" value="255.0" AnchorPane.leftAnchor="25.0"
+                                AnchorPane.rightAnchor="25.0"/>
+                        <Label fx:id="rightSliderLabel" alignment="CENTER" layoutX="180.8000030517578" text="255"
+                               textAlignment="CENTER" AnchorPane.rightAnchor="0.0"/>
+                        <Label alignment="CENTER" prefHeight="17.0" prefWidth="20.0" text="R" textAlignment="CENTER"/>
+                    </children>
+                </AnchorPane>
+                <AnchorPane layoutY="39.0" prefHeight="24.0" prefWidth="136.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <ChoiceBox fx:id="directionChoiceBox" onAction="#onChange" prefHeight="25.0" prefWidth="136.0"
+                                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" value="Increase">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Increase"/>
+                                    <String fx:value="Decrease"/>
+                                </FXCollections>
+                            </items>
+                        </ChoiceBox>
+                    </children>
+                </AnchorPane>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>

@@ -16,6 +16,7 @@ public class RepositoryConfig {
 		container.put(BrightnessConfig.class, new BrightnessConfig());
 		container.put(GrayScaleConfig.class, new GrayScaleConfig());
 		container.put(NegativeConfig.class, new NegativeConfig());
+		container.put(ContrastConfig.class, new ContrastConfig());
 		return container;
 	}
 }

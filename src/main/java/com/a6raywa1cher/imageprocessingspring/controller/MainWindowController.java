@@ -6,8 +6,10 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -25,6 +27,8 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 	private final ImageProcessingService service;
 	public Canvas histogramCanvas;
 	public ImageView image;
+	public ScrollPane scrollPane1;
+	public AnchorPane anchorPane1;
 	private double[] cachedHistogramInfo = new double[256];
 
 	@Autowired
@@ -35,6 +39,7 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 	public void initialize() {
 		histogramCanvas.widthProperty().addListener(e -> renderHistogram(cachedHistogramInfo));
 		histogramCanvas.heightProperty().addListener(e -> renderHistogram(cachedHistogramInfo));
+		scrollPane1.viewportBoundsProperty().addListener((observableValue, o, n) -> anchorPane1.setPrefWidth(n.getMaxX()));
 	}
 
 	@FXML

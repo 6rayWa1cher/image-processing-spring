@@ -50,6 +50,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 				if (o.isPreviewEnabled()) {
 					Transformation<?> transformation = o.getTransformation();
 					after = transformation.transform(after);
+					log.info("Appended " + transformation.getClass().getSimpleName());
 				}
 			}
 		}

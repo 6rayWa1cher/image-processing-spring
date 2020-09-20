@@ -52,26 +52,38 @@
         <SplitPane dividerPositions="0.2026726057906459, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0"
                    prefWidth="-1.0" VBox.vgrow="ALWAYS">
             <items>
-                <AnchorPane minWidth="135.0">
+                <AnchorPane minWidth="180.0">
                     <children>
                         <Accordion layoutX="10.0" layoutY="14.0" prefHeight="551.0" prefWidth="222.0"
                                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <panes>
-                                <TitledPane animated="false" text="Transform">
+                                <TitledPane animated="false" contentDisplay="CENTER" text="Transform">
                                     <content>
-                                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                                            <children>
-                                                <fx:include source="grayScale.fxml" AnchorPane.leftAnchor="0.0"
-                                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                                                <fx:include source="brightnessChanger.fxml" AnchorPane.leftAnchor="0.0"
-                                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="150.0"/>
-                                                <fx:include source="negative.fxml" AnchorPane.leftAnchor="0.0"
-                                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="225.0"/>
-                                                <fx:include source="binary.fxml" AnchorPane.leftAnchor="0.0"
-                                                            AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="300.0"/>
-                                            </children>
-                                        </AnchorPane>
+                                        <ScrollPane fx:id="scrollPane1" hbarPolicy="NEVER">
+                                            <AnchorPane fx:id="anchorPane1" prefHeight="455.0" prefWidth="177.0">
+                                                <children>
+                                                    <fx:include source="grayScale.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="0.0"/>
+                                                    <fx:include source="brightnessChanger.fxml"
+                                                                AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="150.0"/>
+                                                    <fx:include source="negative.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="225.0"/>
+                                                    <fx:include source="binary.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="300.0"/>
+                                                    <fx:include source="contrast.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="375.0"/>
+                                                </children>
+                                                <padding>
+                                                    <Insets left="10.0" right="10.0" top="5.0"/>
+                                                </padding>
+                                            </AnchorPane>
+                                        </ScrollPane>
                                     </content>
                                 </TitledPane>
                                 <TitledPane animated="false" text="untitled 2">
