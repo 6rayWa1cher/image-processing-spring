@@ -1,22 +1,23 @@
 package com.a6raywa1cher.imageprocessingspring.config;
 
 import com.a6raywa1cher.imageprocessingspring.model.*;
+import javafx.util.Pair;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class RepositoryConfig {
 	@Bean
-	public Map<Class<?>, Config> container() {
-		Map<Class<?>, Config> container = new HashMap<>();
-		container.put(BinaryConfig.class, new BinaryConfig());
-		container.put(BrightnessConfig.class, new BrightnessConfig());
-		container.put(GrayScaleConfig.class, new GrayScaleConfig());
-		container.put(NegativeConfig.class, new NegativeConfig());
-		container.put(ContrastConfig.class, new ContrastConfig());
+	public List<Pair<Class<?>, Config>> container() {
+		List<Pair<Class<?>, Config>> container = new ArrayList<>();
+		container.add(new Pair<>(GrayScaleConfig.class, new GrayScaleConfig()));
+		container.add(new Pair<>(BrightnessConfig.class, new BrightnessConfig()));
+		container.add(new Pair<>(NegativeConfig.class, new NegativeConfig()));
+		container.add(new Pair<>(BinaryConfig.class, new BinaryConfig()));
+		container.add(new Pair<>(ContrastConfig.class, new ContrastConfig()));
 		return container;
 	}
 }

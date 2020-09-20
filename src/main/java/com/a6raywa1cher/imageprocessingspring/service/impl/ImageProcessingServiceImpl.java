@@ -10,6 +10,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritablePixelFormat;
+import javafx.util.Pair;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -35,26 +38,32 @@ import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 public class ImageProcessingServiceImpl implements ImageProcessingService {
 	private final ImageRepository imageRepository;
 	private final Executor executor = new HeapExecutor();
+	private final List<Class<?>> order;
 
 	@Autowired
-	public ImageProcessingServiceImpl(ImageRepository imageRepository) {
+	public ImageProcessingServiceImpl(ImageRepository imageRepository, List<Pair<Class<?>, Config>> container) {
 		this.imageRepository = imageRepository;
+		this.order = container.stream().map(Pair::getKey).collect(Collectors.toList());
 	}
 
 	private ImageBundle convertImage(Image before, boolean preview) {
 		Map<Class<?>, Config> allConfigs = imageRepository.getAllConfigs();
-		Image after = before;
+		Image[] after = {before};
 		if (preview) {
-			for (Map.Entry<Class<?>, Config> entry : allConfigs.entrySet()) {
-				Config o = entry.getValue();
-				if (o.isPreviewEnabled()) {
-					Transformation<?> transformation = o.getTransformation();
-					after = transformation.transform(after);
-					log.info("Appended " + transformation.getClass().getSimpleName());
-				}
-			}
+			allConfigs
+				.entrySet()
+				.stream()
+				.sorted(Comparator.comparing(e -> order.indexOf(e.getKey())))
+				.map(Map.Entry::getValue)
+				.forEach(o -> {
+					if (o.isPreviewEnabled()) {
+						Transformation<?> transformation = o.getTransformation();
+						after[0] = transformation.transform(after[0]);
+						log.info("Appended " + transformation.getClass().getSimpleName());
+					}
+				});
 		}
-		return new ImageBundle(before, after, calculateHistogram(after));
+		return new ImageBundle(before, after[0], calculateHistogram(after[0]));
 	}
 
 	private void convertAndSave(Image before, boolean preview) {
