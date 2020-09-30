@@ -18,6 +18,8 @@ public class RepositoryConfig {
 		container.add(new Pair<>(NegativeConfig.class, new NegativeConfig()));
 		container.add(new Pair<>(BinaryConfig.class, new BinaryConfig()));
 		container.add(new Pair<>(ContrastConfig.class, new ContrastConfig()));
+		container.add(new Pair<>(GammaConfig.class, new GammaConfig()));
+		container.add(new Pair<>(QuantizationConfig.class, new QuantizationConfig()));
 		return container;
 	}
 }

@@ -5,6 +5,7 @@ import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
 import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -70,11 +71,16 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		CompletableFuture.runAsync(() -> {
 			int version = imageRepository.getImageBundleVersion();
 			imageRepository.setImageBundle(convertImage(before, preview), version);
-		}, executor);
+		}, executor)
+			.exceptionally(e -> {
+				log.error("Exception during converting", e);
+				return null;
+			});
 	}
 
 	private double[] calculateHistogram(Image image) {
 		PixelReader pixelReader = image.getPixelReader();
+		long start = System.currentTimeMillis();
 		int[] statistics = new int[256];
 		int width = getWidth(image);
 		int height = getHeight(image);
@@ -83,11 +89,10 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		byte[] pixels = byteBuffer.array();
 		for (int i = 0; i < width * height; i++) {
 			int offset = 4 * i;
-			int intensity = (int) Math.min(
-				0.30d * Byte.toUnsignedInt(pixels[offset + 2]) +
-					0.59d * Byte.toUnsignedInt(pixels[offset + 1]) +
-					0.11d * Byte.toUnsignedInt(pixels[offset]),
-				255
+			int intensity = AlgorithmUtils.intensity(
+				Byte.toUnsignedInt(pixels[offset + 2]),
+				Byte.toUnsignedInt(pixels[offset + 1]),
+				Byte.toUnsignedInt(pixels[offset])
 			);
 			statistics[intensity] += 1;
 		}
@@ -95,7 +100,9 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		for (int i = 0; i < statistics.length; i++) {
 			out[i] = normalize(statistics[i], statistics);
 		}
-		log.info("histogram: {}", Arrays.stream(out).mapToObj(Double::toString).map(s -> s.substring(0, Math.min(4, s.length()))).collect(Collectors.joining(",")));
+		if (log.isTraceEnabled())
+			log.trace("histogram: {}", Arrays.stream(out).mapToObj(Double::toString).map(s -> s.substring(0, Math.min(4, s.length()))).collect(Collectors.joining(",")));
+		log.info("histogram: {}ms", System.currentTimeMillis() - start);
 		return out;
 	}
 

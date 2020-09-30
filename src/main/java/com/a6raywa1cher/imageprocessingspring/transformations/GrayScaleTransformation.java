@@ -1,6 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.transformations;
 
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleConfig;
+import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
 
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.normalize;
 
@@ -20,9 +21,7 @@ public class GrayScaleTransformation extends AbstractLookupTransformation<GraySc
 
 	@Override
 	protected int[] transform(int[] src, int[] dest) {
-		int intensity = (int) (normalizedRedWeight * src[0] +
-			normalizedGreenWeight * src[1] +
-			normalizedBlueWeight * src[2]);
+		int intensity = AlgorithmUtils.intensity(src[0], src[1], src[2], normalizedRedWeight, normalizedGreenWeight, normalizedBlueWeight);
 		switch (baseColor) {
 			case RED -> {
 				dest[0] = intensity;

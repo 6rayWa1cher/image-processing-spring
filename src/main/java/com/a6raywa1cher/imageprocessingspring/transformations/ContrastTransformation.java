@@ -1,7 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.transformations;
 
 import com.a6raywa1cher.imageprocessingspring.model.ContrastConfig;
-import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
 
 public class ContrastTransformation extends AbstractLookupTransformation<ContrastConfig> {
 	private final double leftBorder;
@@ -16,22 +15,16 @@ public class ContrastTransformation extends AbstractLookupTransformation<Contras
 
 	@Override
 	protected int[] transform(int[] src, int[] dest) {
-		int intensity = AlgorithmUtils.intensity(src[0], src[1], src[2]);
-		if (intensity < leftBorder) {
-			for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 3; i++) {
+			int intensity = src[i];
+			if (intensity < leftBorder) {
 				dest[i] = 0;
-			}
-		} else if (intensity > rightBorder) {
-			for (int i = 0; i < 3; i++) {
+			} else if (intensity > rightBorder) {
 				dest[i] = 255;
-			}
-		} else if (!decrease) {
-			for (int i = 0; i < 3; i++) {
-				dest[i] = (int) ((src[i] - leftBorder) / (rightBorder - leftBorder) * 255);
-			}
-		} else {
-			for (int i = 0; i < 3; i++) {
-				dest[i] = (int) (leftBorder + src[i] * (rightBorder - leftBorder) / 255);
+			} else if (!decrease) {
+				dest[i] = (int) Math.round((src[i] - leftBorder) / (rightBorder - leftBorder) * 255);
+			} else {
+				dest[i] = (int) Math.round(leftBorder + src[i] * (rightBorder - leftBorder) / 255);
 			}
 		}
 		return dest;
