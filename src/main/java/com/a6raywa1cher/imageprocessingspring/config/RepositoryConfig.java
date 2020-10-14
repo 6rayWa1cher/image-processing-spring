@@ -20,6 +20,7 @@ public class RepositoryConfig {
 		container.add(new Pair<>(ContrastConfig.class, new ContrastConfig()));
 		container.add(new Pair<>(GammaConfig.class, new GammaConfig()));
 		container.add(new Pair<>(QuantizationConfig.class, new QuantizationConfig()));
+		container.add(new Pair<>(PseudocolorConfig.class, new PseudocolorConfig()));
 		return container;
 	}
 }
