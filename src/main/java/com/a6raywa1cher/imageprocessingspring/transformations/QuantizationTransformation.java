@@ -2,30 +2,26 @@ package com.a6raywa1cher.imageprocessingspring.transformations;
 
 import com.a6raywa1cher.imageprocessingspring.model.QuantizationConfig;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class QuantizationTransformation extends AbstractLookupTransformation<QuantizationConfig> {
-	private final Map<Integer, Integer> transformMap;
+public class QuantizationTransformation extends AbstractLookupChannelCachedTransformation<QuantizationConfig> {
+	private final double segmentSize;
+	private final int segments;
 
 	public QuantizationTransformation(QuantizationConfig config) {
-		transformMap = new HashMap<>();
+		segments = config.getSegments();
+		segmentSize = 256d / segments;
+	}
 
-		double segmentSize = 256d / config.getSegments();
+	@Override
+	int transform(int channelIntensity) {
 		for (int leftBorder = 0, rightBorder = (int) segmentSize;
 			 leftBorder <= 256;
 			 leftBorder = rightBorder, rightBorder += segmentSize) {
 			for (int i = leftBorder; i < rightBorder; i++) {
-				transformMap.put(i, leftBorder);
+				if (i == channelIntensity) {
+					return leftBorder;
+				}
 			}
 		}
-	}
-
-	@Override
-	protected int[] transform(int[] src, int[] dest) {
-		for (int i = 0; i < 3; i++) {
-			dest[i] = transformMap.get(src[i]);
-		}
-		return dest;
+		return segments;
 	}
 }

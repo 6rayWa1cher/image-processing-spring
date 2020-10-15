@@ -2,7 +2,7 @@ package com.a6raywa1cher.imageprocessingspring.transformations;
 
 import com.a6raywa1cher.imageprocessingspring.model.ContrastConfig;
 
-public class ContrastTransformation extends AbstractLookupTransformation<ContrastConfig> {
+public class ContrastTransformation extends AbstractLookupChannelCachedTransformation<ContrastConfig> {
 	private final double leftBorder;
 	private final double rightBorder;
 	private final boolean decrease;
@@ -14,19 +14,15 @@ public class ContrastTransformation extends AbstractLookupTransformation<Contras
 	}
 
 	@Override
-	protected int[] transform(int[] src, int[] dest) {
-		for (int i = 0; i < 3; i++) {
-			int intensity = src[i];
-			if (intensity < leftBorder) {
-				dest[i] = 0;
-			} else if (intensity > rightBorder) {
-				dest[i] = 255;
-			} else if (!decrease) {
-				dest[i] = (int) Math.round((src[i] - leftBorder) / (rightBorder - leftBorder) * 255);
-			} else {
-				dest[i] = (int) Math.round(leftBorder + src[i] * (rightBorder - leftBorder) / 255);
-			}
+	int transform(int channelIntensity) {
+		if (channelIntensity < leftBorder) {
+			return 0;
+		} else if (channelIntensity > rightBorder) {
+			return 255;
+		} else if (!decrease) {
+			return (int) Math.round((channelIntensity - leftBorder) / (rightBorder - leftBorder) * 255);
+		} else {
+			return (int) Math.round(leftBorder + channelIntensity * (rightBorder - leftBorder) / 255);
 		}
-		return dest;
 	}
 }
