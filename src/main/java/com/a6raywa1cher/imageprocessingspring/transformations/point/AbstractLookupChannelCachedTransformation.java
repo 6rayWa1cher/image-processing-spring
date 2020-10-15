@@ -1,14 +1,12 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
-
-import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractLookupIntensityCachedTransformation<T> extends AbstractLookupTransformation<T> {
+public abstract class AbstractLookupChannelCachedTransformation extends AbstractLookupTransformation {
 	private Map<Integer, Integer> transformationMap;
 
-	abstract int transform(int intensity);
+	abstract int transform(int channelIntensity);
 
 	private void makeTransformationMap() {
 		transformationMap = new HashMap<>();
@@ -22,9 +20,8 @@ public abstract class AbstractLookupIntensityCachedTransformation<T> extends Abs
 		if (transformationMap == null) {
 			makeTransformationMap();
 		}
-		int intensity = AlgorithmUtils.intensity(src[0], src[1], src[2]);
 		for (int i = 0; i < 3; i++) {
-			dest[i] = transformationMap.get(intensity);
+			dest[i] = transformationMap.get(src[i]);
 		}
 		return dest;
 	}

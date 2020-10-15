@@ -1,8 +1,8 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import com.a6raywa1cher.imageprocessingspring.model.QuantizationConfig;
 
-public class QuantizationTransformation extends AbstractLookupChannelCachedTransformation<QuantizationConfig> {
+public class QuantizationTransformation extends AbstractLookupChannelCachedTransformation {
 	private final double segmentSize;
 	private final int segments;
 

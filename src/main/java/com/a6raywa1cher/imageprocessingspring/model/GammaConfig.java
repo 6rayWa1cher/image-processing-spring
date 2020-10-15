@@ -1,8 +1,8 @@
 package com.a6raywa1cher.imageprocessingspring.model;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.transformations.GammaTransformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import com.a6raywa1cher.imageprocessingspring.transformations.point.GammaTransformation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class GammaConfig implements Config {
 	}
 
 	@Override
-	public Transformation<?> getTransformation() {
+	public Transformation getTransformation() {
 		return new GammaTransformation(this);
 	}
 }

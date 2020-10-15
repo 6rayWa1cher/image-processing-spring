@@ -58,7 +58,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 				.map(Map.Entry::getValue)
 				.forEach(o -> {
 					if (o.isPreviewEnabled()) {
-						Transformation<?> transformation = o.getTransformation();
+						Transformation transformation = o.getTransformation();
 						after[0] = transformation.transform(after[0]);
 						log.info("Appended " + transformation.getClass().getSimpleName());
 					}
@@ -116,7 +116,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	public <T extends Config> void applyConfig(T config, Class<T> tClass) {
 		imageRepository.setConfig(config, tClass);
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Transformation<?> transformation = config.getTransformation();
+		Transformation transformation = config.getTransformation();
 		Image newImage = transformation.transform(imageBundle.getCurrentImage());
 		convertAndSave(newImage, true);
 	}

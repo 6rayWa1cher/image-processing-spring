@@ -1,8 +1,8 @@
 package com.a6raywa1cher.imageprocessingspring.model;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.transformations.GrayScaleTransformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import com.a6raywa1cher.imageprocessingspring.transformations.point.GrayScaleTransformation;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -43,7 +43,7 @@ public class GrayScaleConfig implements Config {
 	}
 
 	@Override
-	public Transformation<?> getTransformation() {
+	public Transformation getTransformation() {
 		return new GrayScaleTransformation(this);
 	}
 

@@ -1,8 +1,8 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import com.a6raywa1cher.imageprocessingspring.model.GammaConfig;
 
-public class GammaTransformation extends AbstractLookupChannelCachedTransformation<GammaConfig> {
+public class GammaTransformation extends AbstractLookupChannelCachedTransformation {
 	private final double gamma;
 
 	public GammaTransformation(GammaConfig gammaConfig) {

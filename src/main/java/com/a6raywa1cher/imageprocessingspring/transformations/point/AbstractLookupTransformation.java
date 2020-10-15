@@ -1,5 +1,6 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
+import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
@@ -13,7 +14,7 @@ import java.awt.image.LookupTable;
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.imageToWriteable;
 
 @Slf4j
-public abstract class AbstractLookupTransformation<T> implements Transformation<T> {
+public abstract class AbstractLookupTransformation implements Transformation {
 	protected abstract int[] transform(int[] src, int[] dest);
 
 	@Override

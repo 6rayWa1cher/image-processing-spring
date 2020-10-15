@@ -1,8 +1,8 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import com.a6raywa1cher.imageprocessingspring.model.ContrastConfig;
 
-public class ContrastTransformation extends AbstractLookupChannelCachedTransformation<ContrastConfig> {
+public class ContrastTransformation extends AbstractLookupChannelCachedTransformation {
 	private final double leftBorder;
 	private final double rightBorder;
 	private final boolean decrease;

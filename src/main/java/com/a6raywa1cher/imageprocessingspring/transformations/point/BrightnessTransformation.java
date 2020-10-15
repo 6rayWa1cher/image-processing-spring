@@ -1,8 +1,8 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import com.a6raywa1cher.imageprocessingspring.model.BrightnessConfig;
 
-public class BrightnessTransformation extends AbstractLookupChannelCachedTransformation<BrightnessConfig> {
+public class BrightnessTransformation extends AbstractLookupChannelCachedTransformation {
 	private final double delta;
 
 	public BrightnessTransformation(BrightnessConfig brightnessConfig) {

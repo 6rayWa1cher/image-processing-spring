@@ -21,6 +21,7 @@ public class RepositoryConfig {
 		container.add(new Pair<>(GammaConfig.class, new GammaConfig()));
 		container.add(new Pair<>(QuantizationConfig.class, new QuantizationConfig()));
 		container.add(new Pair<>(PseudocolorConfig.class, new PseudocolorConfig()));
+		container.add(new Pair<>(SolarizationConfig.class, new SolarizationConfig()));
 		return container;
 	}
 }

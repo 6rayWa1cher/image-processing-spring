@@ -2,32 +2,15 @@ package com.a6raywa1cher.imageprocessingspring.model;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
-import com.a6raywa1cher.imageprocessingspring.transformations.point.PseudocolorTransformation;
-import javafx.scene.paint.Color;
+import com.a6raywa1cher.imageprocessingspring.transformations.point.SolarizationTransformation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PseudocolorConfig implements Config {
-
-	private Color color1;
-
-	private Color color2;
-
-	private Color color3;
-
-	private Color color4;
-
-	private int q1;
-
-	private int q2;
-
-	private int q3;
-
+public class SolarizationConfig implements Config {
 	private boolean preview;
 
 	@Override
@@ -42,11 +25,11 @@ public class PseudocolorConfig implements Config {
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {
-		return new ConfigModifiedEvent<>(this, PseudocolorConfig.class);
+		return new ConfigModifiedEvent<>(this, SolarizationConfig.class);
 	}
 
 	@Override
 	public Transformation getTransformation() {
-		return new PseudocolorTransformation(this);
+		return new SolarizationTransformation(this);
 	}
 }

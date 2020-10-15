@@ -1,4 +1,4 @@
-package com.a6raywa1cher.imageprocessingspring.transformations;
+package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import com.a6raywa1cher.imageprocessingspring.model.PseudocolorConfig;
 import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils.channelToInt;
 
-public class PseudocolorTransformation extends AbstractLookupIntensityCachedTransformation<PseudocolorConfig> {
+public class PseudocolorTransformation extends AbstractLookupIntensityCachedTransformation {
 	private final List<Pair<Color, Integer>> pairs;
 
 	public PseudocolorTransformation(PseudocolorConfig config) {
