@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -121,20 +122,15 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		convertAndSave(newImage, true);
 	}
 
-	@Override
-	public void saveFile() {
-		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), new File(imageRepository.getImageURL()));
-	}
-
-	@Override
-	public void saveToFile(File file) {
-		this.saveToFile(imageRepository.getImageBundle().getCurrentImage(), file);
-	}
-
 	@SneakyThrows
-	private void saveToFile(Image img, File file) {
+	public static void saveToFile(Image img, File file) {
 		BufferedImage bImage = SwingFXUtils.fromFXImage(img, null);
-		File file1 = new File(new URL(file.toString()).toURI());
+		File file1;
+		try {
+			file1 = new File(new URL(file.toString()).toURI());
+		} catch (MalformedURLException e) {
+			file1 = file;
+		}
 		try {
 			String extension = StringUtils.getFilenameExtension(file1.getAbsolutePath());
 			if (!ImageIO.write(bImage, extension != null ? extension : "png", file1)) {
@@ -147,6 +143,16 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 				throw new RuntimeException(e1);
 			}
 		}
+	}
+
+	@Override
+	public void saveFile() {
+		saveToFile(imageRepository.getImageBundle().getCurrentImage(), new File(imageRepository.getImageURL()));
+	}
+
+	@Override
+	public void saveToFile(File file) {
+		saveToFile(imageRepository.getImageBundle().getCurrentImage(), file);
 	}
 
 	@Override

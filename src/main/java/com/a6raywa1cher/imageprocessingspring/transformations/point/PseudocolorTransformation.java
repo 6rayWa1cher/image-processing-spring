@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils.channelToInt;
 
-public class PseudocolorTransformation extends AbstractLookupIntensityCachedTransformation {
+public class PseudocolorTransformation extends AbstractLookupTransformation {
 	private final List<Pair<Color, Integer>> pairs;
 
 	public PseudocolorTransformation(PseudocolorConfig config) {
@@ -23,12 +23,6 @@ public class PseudocolorTransformation extends AbstractLookupIntensityCachedTran
 		));
 		pairs.sort(Comparator.comparing(Pair::getValue));
 	}
-
-	@Override
-	int transform(int intensity) {
-		return 0;
-	}
-
 	@Override
 	protected int[] transform(int[] src, int[] dest) {
 		int intensity = AlgorithmUtils.intensity(src[0], src[1], src[2]);
