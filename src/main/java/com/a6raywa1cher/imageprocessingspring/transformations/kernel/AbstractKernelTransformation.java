@@ -84,7 +84,6 @@ public abstract class AbstractKernelTransformation implements Transformation {
 					}
 					int targetCoord = (y * width + x) * 4 + channel;
 					target[targetCoord] = (byte) (sum < 0 ? 0 : (sum > 255 ? 255 : sum));
-//					target[targetCoord] = (byte) sum;
 				}
 			}
 		}

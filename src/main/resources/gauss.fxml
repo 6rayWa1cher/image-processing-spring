@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="71.0" prefWidth="136.0"
+            xmlns="http://javafx.com/javafx/11.0.1"
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.GaussController">
+    <children>
+        <Label text="Gauss"/>
+        <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+        <AnchorPane layoutY="20.0" prefHeight="55.0" prefWidth="136.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <children>
+                <AnchorPane layoutY="30.0" prefHeight="22.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
+                            AnchorPane.rightAnchor="0.0">
+                    <children>
+                        <CheckBox fx:id="previewCheckbox" layoutY="3.0" mnemonicParsing="false" onAction="#onChange"
+                                  text="Preview" AnchorPane.leftAnchor="0.0"/>
+                        <Button fx:id="applyButton" layoutX="148.0" layoutY="-1.0" mnemonicParsing="false"
+                                onAction="#apply" text="Apply" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+                <Spinner fx:id="chooser" layoutY="2.0" prefHeight="25.0" prefWidth="132.0" AnchorPane.leftAnchor="0.0"
+                         AnchorPane.rightAnchor="0.0"/>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>
