@@ -1,6 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.transformations.kernel;
 
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
 import javafx.scene.image.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,50 +22,15 @@ public abstract class AbstractKernelTransformation implements Transformation {
 		int height = getHeight(writableImage);
 		Kernel kernel = getKernel();
 
-		// generate extended image
-		WritableImage extendedImage = new WritableImage(width + 2 * kernel.getXOrigin(), height + 2 * kernel.getYOrigin());
-		int extendedHeight = getHeight(extendedImage);
+		WritableImage extendedImage = AlgorithmUtils.extendImageSecondStrategy(image, Math.max(kernel.getXOrigin(), kernel.getYOrigin()));
 		int extendedWidth = getWidth(extendedImage);
-		PixelWriter extendedImagePixelWriter = extendedImage.getPixelWriter();
-		extendedImagePixelWriter.setPixels(kernel.getXOrigin(), kernel.getYOrigin(), width, height, pixelReader, 0, 0);
-		// copy above line
-		for (int i = 0; i < kernel.getYOrigin(); i++) {
-			extendedImagePixelWriter.setPixels(
-				kernel.getXOrigin(), i,
-				width, 1,
-				pixelReader,
-				0, 0);
-		}
-		// copy bottom line
-		for (int i = 0; i < kernel.getYOrigin(); i++) {
-			extendedImagePixelWriter.setPixels(
-				kernel.getXOrigin(), extendedHeight - 1 - i,
-				width, 1,
-				pixelReader,
-				0, height - 1);
-		}
+		int extendedHeight = getHeight(extendedImage);
 		PixelReader extendedImagePixelReader = extendedImage.getPixelReader();
-		// copy left line
-		for (int i = 0; i < kernel.getXOrigin(); i++) {
-			extendedImagePixelWriter.setPixels(
-				i, 0,
-				1, extendedHeight,
-				extendedImagePixelReader,
-				kernel.getXOrigin(), 0);
-		}
-		// copy right line
-		for (int i = 0; i < kernel.getXOrigin(); i++) {
-			extendedImagePixelWriter.setPixels(
-				extendedWidth - 1 - i, 0,
-				1, extendedHeight,
-				extendedImagePixelReader,
-				extendedWidth - 1 - kernel.getXOrigin(), 0);
-		}
+
 		byte[] source = new byte[extendedWidth * extendedHeight * 4];
 		byte[] target = new byte[width * height * 4];
 		extendedImagePixelReader.getPixels(0, 0, extendedWidth, extendedHeight, WritablePixelFormat.getByteBgraPreInstance(), source, 0, extendedWidth * 4);
 		pixelReader.getPixels(0, 0, width, height, WritablePixelFormat.getByteBgraPreInstance(), target, 0, width * 4);
-
 		float[] kernelData = new float[kernel.getWidth() * kernel.getHeight()];
 		kernel.getKernelData(kernelData);
 		for (int x = 0; x < width; x++) {

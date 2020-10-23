@@ -1,7 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
-import com.a6raywa1cher.imageprocessingspring.model.GaussConfig;
+import com.a6raywa1cher.imageprocessingspring.model.MiddleConfig;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,7 +14,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class GaussController implements ApplicationListener<ConfigModifiedEvent> {
+public class MiddleController implements ApplicationListener<ConfigModifiedEvent> {
 	private final ImageProcessingService service;
 
 	public CheckBox previewCheckbox;
@@ -23,26 +23,26 @@ public class GaussController implements ApplicationListener<ConfigModifiedEvent>
 	private volatile boolean updating;
 
 	@Autowired
-	public GaussController(ImageProcessingService service) {
+	public MiddleController(ImageProcessingService service) {
 		this.service = service;
 	}
 
-	private synchronized GaussConfig stateToInformation() {
-		return new GaussConfig(chooser.getValue(), previewCheckbox.isSelected());
+	private synchronized MiddleConfig stateToInformation() {
+		return new MiddleConfig(chooser.getValue(), previewCheckbox.isSelected());
 	}
 
-	private synchronized void informationToState(GaussConfig gaussConfig) {
+	private synchronized void informationToState(MiddleConfig middleConfig) {
 		updating = true;
 		try {
-			chooser.getValueFactory().setValue(gaussConfig.getGaussDegree());
-			previewCheckbox.setSelected(gaussConfig.isPreview());
+			chooser.getValueFactory().setValue(middleConfig.getWindowSize());
+			previewCheckbox.setSelected(middleConfig.isPreview());
 		} finally {
 			updating = false;
 		}
 	}
 
 	public void initialize() {
-		chooser.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(3, 67, 3, 2));
+		chooser.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(3, Integer.MAX_VALUE, 3, 2));
 		chooser.valueProperty().addListener((observable, oldValue, newValue) -> {
 			if (!updating) onChange();
 		});
@@ -50,20 +50,20 @@ public class GaussController implements ApplicationListener<ConfigModifiedEvent>
 
 	@FXML
 	public void onChange() {
-		service.setConfig(stateToInformation(), GaussConfig.class);
+		service.setConfig(stateToInformation(), MiddleConfig.class);
 	}
 
 	@FXML
 	public void apply() {
-		service.applyConfig(stateToInformation(), GaussConfig.class);
+		service.applyConfig(stateToInformation(), MiddleConfig.class);
 	}
 
 	@Override
 	public void onApplicationEvent(ConfigModifiedEvent event) {
-		if (!event.getClazz().equals(GaussConfig.class)) return;
+		if (!event.getClazz().equals(MiddleConfig.class)) return;
 		Platform.runLater(() -> {
-			GaussConfig gaussConfig = (GaussConfig) event.getConfig();
-			informationToState(gaussConfig);
+			MiddleConfig middleConfig = (MiddleConfig) event.getConfig();
+			informationToState(middleConfig);
 		});
 	}
 }

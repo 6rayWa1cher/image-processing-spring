@@ -1,32 +1,17 @@
 package com.a6raywa1cher.imageprocessingspring.model;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.transformations.MiddleTransformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
-import com.a6raywa1cher.imageprocessingspring.transformations.point.PseudocolorTransformation;
-import javafx.scene.paint.Color;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PseudocolorConfig implements Config {
-
-	private Color color1 = Color.RED;
-
-	private Color color2 = Color.GREEN;
-
-	private Color color3 = Color.BLUE;
-
-	private Color color4 = Color.LIGHTBLUE;
-
-	private int q1;
-
-	private int q2;
-
-	private int q3;
+public class MiddleConfig implements Config {
+	private int windowSize = 3;
 
 	private boolean preview;
 
@@ -42,11 +27,11 @@ public class PseudocolorConfig implements Config {
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {
-		return new ConfigModifiedEvent<>(this, PseudocolorConfig.class);
+		return new ConfigModifiedEvent<>(this, MiddleConfig.class);
 	}
 
 	@Override
 	public Transformation getTransformation() {
-		return new PseudocolorTransformation(this);
+		return new MiddleTransformation(this);
 	}
 }

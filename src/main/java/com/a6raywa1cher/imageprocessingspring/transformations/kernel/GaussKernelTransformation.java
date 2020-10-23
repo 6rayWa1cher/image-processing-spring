@@ -11,8 +11,8 @@ public class GaussKernelTransformation extends AbstractKernelTransformation {
 		this.gaussDegree = gaussConfig.getGaussDegree();
 	}
 
-	private static int[] calculateFactors(int n) {
-		int[] out = new int[n];
+	private static long[] calculateFactors(int n) {
+		long[] out = new long[n];
 		out[0] = 1;
 		for (int i = 1; i < n; i++) {
 			for (int j = n - 1; j >= 1; j--) {
@@ -25,7 +25,7 @@ public class GaussKernelTransformation extends AbstractKernelTransformation {
 	@Override
 	protected Kernel getKernel() {
 		float[] kernel = new float[gaussDegree * gaussDegree];
-		int[] factors = calculateFactors(gaussDegree);
+		long[] factors = calculateFactors(gaussDegree);
 		float p = (float) Math.pow(0.5d, gaussDegree - 1);
 		for (int x = 0; x < gaussDegree; x++) {
 			for (int y = 0; y < gaussDegree; y++) {

@@ -96,6 +96,9 @@
                                                     <fx:include source="gauss.fxml" AnchorPane.leftAnchor="0.0"
                                                                 AnchorPane.rightAnchor="0.0"
                                                                 AnchorPane.topAnchor="985.0"/>
+                                                    <fx:include source="middle.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="1060.0"/>
                                                 </children>
                                                 <padding>
                                                     <Insets left="10.0" right="10.0" top="5.0"/>
