@@ -1,7 +1,9 @@
 package com.a6raywa1cher.imageprocessingspring.controller.transform;
 
 import com.a6raywa1cher.imageprocessingspring.model.ContrastConfig;
-import javafx.scene.control.*;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import org.springframework.stereotype.Controller;
 
 @Controller

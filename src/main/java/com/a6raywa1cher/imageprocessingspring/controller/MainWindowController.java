@@ -7,14 +7,13 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Controller;
 
 import java.io.File;
@@ -23,10 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-public class MainWindowController implements ApplicationListener<ImageModifiedEvent> {
+@Slf4j
+public class MainWindowController {
 	private final ImageProcessingService service;
 	public Canvas histogramCanvas;
-	public ImageView image;
 	public ScrollPane scrollPane1;
 	public AnchorPane anchorPane1;
 	private double[] cachedHistogramInfo = new double[256];
@@ -42,9 +41,12 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 		scrollPane1.viewportBoundsProperty().addListener((observableValue, o, n) -> anchorPane1.setPrefWidth(n.getMaxX()));
 	}
 
+	public Stage getStage() {
+		return (Stage) histogramCanvas.getScene().getWindow();
+	}
+
 	@FXML
 	public void onOpenFile() throws MalformedURLException {
-		Stage stage = (Stage) image.getScene().getWindow();
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open image");
 		FileChooser.ExtensionFilter anyFile = new FileChooser.ExtensionFilter("Compatible image", "*.png", "*.jpg", "*.jpeg", "*.gif");
@@ -52,7 +54,8 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 		fileChooser.getExtensionFilters().addAll(getFilters());
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Any file", "*"));
 		fileChooser.setSelectedExtensionFilter(anyFile);
-		File file = fileChooser.showOpenDialog(stage);
+
+		File file = fileChooser.showOpenDialog(getStage());
 		if (file != null) {
 			service.openFile(file.toURI().toURL().toString());
 		}
@@ -65,15 +68,22 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 
 	@FXML
 	public void onSaveFileAs() {
-		Stage stage = (Stage) image.getScene().getWindow();
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save image");
 		fileChooser.getExtensionFilters().addAll(getFilters());
 		fileChooser.setSelectedExtensionFilter(getDefaultFilter());
-		File file = fileChooser.showSaveDialog(stage);
+		File file = fileChooser.showSaveDialog(getStage());
 		if (file != null) {
 			service.saveToFile(file);
 		}
+	}
+
+	@EventListener(ImageModifiedEvent.class)
+	public void onApplicationEvent(ImageModifiedEvent event) {
+		Platform.runLater(() -> {
+			cachedHistogramInfo = event.getImageBundle().getHistogramMetric();
+			renderHistogram(cachedHistogramInfo);
+		});
 	}
 
 	private FileChooser.ExtensionFilter getDefaultFilter() {
@@ -84,20 +94,6 @@ public class MainWindowController implements ApplicationListener<ImageModifiedEv
 		return List.of(getDefaultFilter(),
 			new FileChooser.ExtensionFilter("JPEG-image", "*.jpg", "*.jpeg"),
 			new FileChooser.ExtensionFilter("GIF", "*.gif"));
-	}
-
-	@Override
-	public void onApplicationEvent(ImageModifiedEvent event) {
-		Platform.runLater(() -> {
-			Image currentViewImage = event.getImageBundle().getCurrentViewImage();
-			image.setImage(currentViewImage);
-			cachedHistogramInfo = event.getImageBundle().getHistogramMetric();
-			renderHistogram(cachedHistogramInfo);
-			if (currentViewImage != null) {
-				image.setFitWidth(currentViewImage.getWidth());
-				image.setFitHeight(currentViewImage.getHeight());
-			}
-		});
 	}
 
 	private Paint grayToColor(int value) {

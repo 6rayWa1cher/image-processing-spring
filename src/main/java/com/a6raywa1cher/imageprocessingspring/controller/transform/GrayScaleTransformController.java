@@ -1,7 +1,9 @@
 package com.a6raywa1cher.imageprocessingspring.controller.transform;
 
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleConfig;
-import javafx.scene.control.*;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 

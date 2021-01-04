@@ -1,8 +1,6 @@
 package com.a6raywa1cher.imageprocessingspring.controller.transform;
 
 import com.a6raywa1cher.imageprocessingspring.model.EmbossingConfig;
-import com.a6raywa1cher.imageprocessingspring.model.KirschConfig;
-import com.a6raywa1cher.imageprocessingspring.model.LowHighFrequencyConfig;
 import com.sun.javafx.collections.ImmutableObservableList;
 import javafx.scene.control.ChoiceBox;
 import org.springframework.stereotype.Controller;

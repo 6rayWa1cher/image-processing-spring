@@ -5,9 +5,7 @@ import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
 import javafx.scene.image.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.awt.image.Kernel;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 

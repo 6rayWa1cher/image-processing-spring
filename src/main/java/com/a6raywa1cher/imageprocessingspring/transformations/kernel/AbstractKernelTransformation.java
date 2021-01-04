@@ -1,13 +1,8 @@
 package com.a6raywa1cher.imageprocessingspring.transformations.kernel;
 
-import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
-import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
-import javafx.scene.image.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.image.Kernel;
-
-import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 
 @Slf4j
 public abstract class AbstractKernelTransformation extends AbstractKernelCallbackTransformation {

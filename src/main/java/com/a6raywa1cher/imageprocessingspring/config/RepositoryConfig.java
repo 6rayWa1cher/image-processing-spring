@@ -28,6 +28,8 @@ public class RepositoryConfig {
 		container.add(new Pair<>(SobelConfig.class, new SobelConfig()));
 		container.add(new Pair<>(KirschConfig.class, new KirschConfig()));
 		container.add(new Pair<>(EmbossingConfig.class, new EmbossingConfig()));
+
+		container.add(new Pair<>(SelectConfig.class, new SelectConfig())); // always last
 		return container;
 	}
 }

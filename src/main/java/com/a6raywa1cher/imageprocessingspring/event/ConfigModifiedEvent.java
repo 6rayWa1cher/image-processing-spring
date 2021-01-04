@@ -3,7 +3,7 @@ package com.a6raywa1cher.imageprocessingspring.event;
 import org.springframework.context.ApplicationEvent;
 
 public class ConfigModifiedEvent<T> extends ApplicationEvent {
-	private Class<T> clazz;
+	private final Class<T> clazz;
 
 	public ConfigModifiedEvent(T source, Class<T> clazz) {
 		super(source);

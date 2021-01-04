@@ -3,7 +3,6 @@ package com.a6raywa1cher.imageprocessingspring.model;
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.kernel.KirschKernelTransformation;
-import com.a6raywa1cher.imageprocessingspring.transformations.kernel.SobelKernelTransformation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class KirschConfig implements GenericConfig{
+public class KirschConfig implements GenericConfig {
 	private boolean preview;
 
 	@Override

@@ -23,6 +23,7 @@ public class PseudocolorTransformation extends AbstractLookupTransformation {
 		));
 		pairs.sort(Comparator.comparing(Pair::getValue));
 	}
+
 	@Override
 	protected int[] transform(int[] src, int[] dest) {
 		int intensity = AlgorithmUtils.intensity(src[0], src[1], src[2]);

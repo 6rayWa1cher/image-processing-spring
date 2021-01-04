@@ -1,7 +1,9 @@
 package com.a6raywa1cher.imageprocessingspring.controller.transform;
 
 import com.a6raywa1cher.imageprocessingspring.model.PseudocolorConfig;
-import javafx.scene.control.*;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import org.springframework.stereotype.Controller;
 
 @Controller

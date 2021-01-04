@@ -10,7 +10,7 @@ public class MiddleTransformController extends AbstractTransformController<Middl
 	public Spinner<Integer> chooser;
 	private volatile boolean updating;
 
-	public MiddleTransformController(){
+	public MiddleTransformController() {
 		super(MiddleConfig.class);
 	}
 
