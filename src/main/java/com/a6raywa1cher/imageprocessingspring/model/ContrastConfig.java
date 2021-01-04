@@ -10,21 +10,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContrastConfig implements Config {
+public class ContrastConfig implements GenericConfig {
 	private double leftBorder;
 	private double rightBorder;
 	private boolean decrease;
 	private boolean preview;
-
-	@Override
-	public boolean isPreviewAvailable() {
-		return true;
-	}
-
-	@Override
-	public boolean isPreviewEnabled() {
-		return preview;
-	}
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {

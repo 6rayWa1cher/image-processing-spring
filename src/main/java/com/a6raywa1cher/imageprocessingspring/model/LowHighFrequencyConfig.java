@@ -10,20 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LowHighFrequencyConfig implements Config {
+public class LowHighFrequencyConfig implements GenericConfig {
 	private KernelType type = KernelType.L1;
 
 	private boolean preview;
-
-	@Override
-	public boolean isPreviewAvailable() {
-		return true;
-	}
-
-	@Override
-	public boolean isPreviewEnabled() {
-		return preview;
-	}
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {

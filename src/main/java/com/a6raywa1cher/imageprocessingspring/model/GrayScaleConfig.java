@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class GrayScaleConfig implements Config {
+public class GrayScaleConfig implements GenericConfig {
 	private double redSlider = 30d;
 
 	private double greenSlider = 59d;
@@ -25,16 +25,6 @@ public class GrayScaleConfig implements Config {
 		this.blueSlider = blueSlider;
 		this.baseColor = baseColor;
 		this.preview = preview;
-	}
-
-	@Override
-	public boolean isPreviewAvailable() {
-		return true;
-	}
-
-	@Override
-	public boolean isPreviewEnabled() {
-		return preview;
 	}
 
 	@Override

@@ -10,20 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BrightnessConfig implements Config {
+public class BrightnessConfig implements GenericConfig {
 	private double delta = 0;
 
 	private boolean preview = false;
-
-	@Override
-	public boolean isPreviewAvailable() {
-		return true;
-	}
-
-	@Override
-	public boolean isPreviewEnabled() {
-		return preview;
-	}
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {

@@ -8,6 +8,7 @@ public class GaussKernelTransformation extends AbstractKernelTransformation {
 	private final int gaussDegree;
 
 	public GaussKernelTransformation(GaussConfig gaussConfig) {
+		super(gaussConfig.getGaussDegree());
 		this.gaussDegree = gaussConfig.getGaussDegree();
 	}
 

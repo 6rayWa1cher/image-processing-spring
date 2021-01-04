@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="237.0" prefWidth="133.0"
             xmlns="http://javafx.com/javafx/11.0.1"
-            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.PseudocolorController">
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.transform.PseudocolorTransformController">
     <children>
         <Label text="Pseudocolorization"/>
         <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>

@@ -8,6 +8,7 @@ public class LowHighFrequencyTransformation extends AbstractKernelTransformation
 	private final LowHighFrequencyConfig.KernelType kernelType;
 
 	public LowHighFrequencyTransformation(LowHighFrequencyConfig config) {
+		super(3);
 		kernelType = config.getType();
 	}
 

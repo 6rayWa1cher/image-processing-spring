@@ -10,19 +10,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BinaryConfig implements Config {
+public class BinaryConfig implements GenericConfig {
 	private double threshold = 1;
 	private boolean preview;
-
-	@Override
-	public boolean isPreviewAvailable() {
-		return true;
-	}
-
-	@Override
-	public boolean isPreviewEnabled() {
-		return preview;
-	}
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {

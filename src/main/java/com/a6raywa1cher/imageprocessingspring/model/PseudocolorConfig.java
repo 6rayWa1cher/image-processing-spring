@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PseudocolorConfig implements Config {
+public class PseudocolorConfig implements GenericConfig {
 
 	private Color color1 = Color.RED;
 
@@ -29,16 +29,6 @@ public class PseudocolorConfig implements Config {
 	private int q3;
 
 	private boolean preview;
-
-	@Override
-	public boolean isPreviewAvailable() {
-		return true;
-	}
-
-	@Override
-	public boolean isPreviewEnabled() {
-		return preview;
-	}
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {

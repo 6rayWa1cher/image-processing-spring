@@ -6,7 +6,7 @@
 <?import java.lang.String?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="109.0" prefWidth="136.0"
             xmlns="http://javafx.com/javafx/11.0.1"
-            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.ContrastController"
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.transform.ContrastTransformController"
 >
     <children>
         <Label text="Contrast"/>

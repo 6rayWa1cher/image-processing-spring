@@ -2,7 +2,8 @@ package com.a6raywa1cher.imageprocessingspring.model;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
-import com.a6raywa1cher.imageprocessingspring.transformations.kernel.GaussKernelTransformation;
+import com.a6raywa1cher.imageprocessingspring.transformations.kernel.SobelKernelTransformation;
+import com.a6raywa1cher.imageprocessingspring.transformations.point.SolarizationTransformation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,18 +11,16 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GaussConfig implements GenericConfig {
-	private int gaussDegree;
-
+public class SobelConfig implements GenericConfig {
 	private boolean preview;
 
 	@Override
 	public ConfigModifiedEvent<?> getEvent() {
-		return new ConfigModifiedEvent<>(this, GaussConfig.class);
+		return new ConfigModifiedEvent<>(this, SobelConfig.class);
 	}
 
 	@Override
 	public Transformation getTransformation() {
-		return new GaussKernelTransformation(this);
+		return new SobelKernelTransformation(this);
 	}
 }

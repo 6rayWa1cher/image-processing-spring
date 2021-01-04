@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="43.0" prefWidth="133.0"
             xmlns="http://javafx.com/javafx/11.0.1"
-            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.SolarizationController">
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.transform.SolarizationTransformController">
     <children>
         <Label text="Solarization"/>
         <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
