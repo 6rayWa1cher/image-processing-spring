@@ -12,7 +12,7 @@ import org.springframework.core.annotation.Order;
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.imageToWriteable;
 
 @Slf4j
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class SelectTransformation implements Transformation {
 	private final int x;
 	private final int y;

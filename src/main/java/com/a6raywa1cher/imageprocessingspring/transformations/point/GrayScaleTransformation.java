@@ -2,9 +2,12 @@ package com.a6raywa1cher.imageprocessingspring.transformations.point;
 
 import com.a6raywa1cher.imageprocessingspring.model.GrayScaleConfig;
 import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.normalize;
 
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GrayScaleTransformation extends AbstractLookupTransformation {
 	private final double normalizedRedWeight;
 	private final double normalizedGreenWeight;

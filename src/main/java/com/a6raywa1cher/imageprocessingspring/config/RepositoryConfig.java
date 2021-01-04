@@ -17,8 +17,7 @@ public class RepositoryConfig {
 	@Bean
 	public List<Class<? extends Transformation>> transformationManifest() throws ClassNotFoundException {
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter((metadataReader, metadataReaderFactory) ->
-			Arrays.asList(metadataReader.getClassMetadata().getInterfaceNames()).contains("Transformation"));
+		provider.addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
 		Map<Class<? extends Transformation>, Integer> orderMap = new HashMap<>();
 		for (BeanDefinition beanDefinition :
 			provider.findCandidateComponents("com.a6raywa1cher.imageprocessingspring.transformations")) {
@@ -38,11 +37,10 @@ public class RepositoryConfig {
 	public Set<Config> container() throws ClassNotFoundException, NoSuchMethodException,
 		IllegalAccessException, InvocationTargetException, InstantiationException {
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter((metadataReader, metadataReaderFactory) -> {
-				return Arrays.stream(metadataReader.getClassMetadata().getInterfaceNames())
-					.anyMatch(interfaceName -> interfaceName.equals("com.a6raywa1cher.imageprocessingspring.model.Config")
-						|| interfaceName.equals("com.a6raywa1cher.imageprocessingspring.model.GenericConfig"));
-			}
+		provider.addIncludeFilter((metadataReader, metadataReaderFactory) ->
+			Arrays.stream(metadataReader.getClassMetadata().getInterfaceNames())
+				.anyMatch(interfaceName -> interfaceName.equals("com.a6raywa1cher.imageprocessingspring.model.Config")
+					|| interfaceName.equals("com.a6raywa1cher.imageprocessingspring.model.GenericConfig"))
 		);
 		Set<Config> set = new HashSet<>();
 		for (BeanDefinition bd : provider.findCandidateComponents("com.a6raywa1cher.imageprocessingspring.model")) {

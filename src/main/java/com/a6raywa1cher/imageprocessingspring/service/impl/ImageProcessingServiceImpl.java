@@ -55,7 +55,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 			allConfigs
 				.entrySet()
 				.stream()
-				.sorted(Comparator.comparing(e -> order.indexOf(e.getKey())))
+				.sorted(Comparator.comparing(e -> order.indexOf(e.getValue().getMainTransformation())))
 				.map(Map.Entry::getValue)
 				.forEach(o -> {
 					if (o.isPreviewEnabled()) {
