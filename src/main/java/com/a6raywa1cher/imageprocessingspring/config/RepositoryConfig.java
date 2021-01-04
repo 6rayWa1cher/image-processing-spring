@@ -25,6 +25,9 @@ public class RepositoryConfig {
 		container.add(new Pair<>(LowHighFrequencyConfig.class, new LowHighFrequencyConfig()));
 		container.add(new Pair<>(GaussConfig.class, new GaussConfig()));
 		container.add(new Pair<>(MiddleConfig.class, new MiddleConfig()));
+		container.add(new Pair<>(SobelConfig.class, new SobelConfig()));
+		container.add(new Pair<>(KirschConfig.class, new KirschConfig()));
+		container.add(new Pair<>(EmbossingConfig.class, new EmbossingConfig()));
 		return container;
 	}
 }
