@@ -36,7 +36,7 @@ public class PseudocolorConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new PseudocolorTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return PseudocolorTransformation.class;
 	}
 }

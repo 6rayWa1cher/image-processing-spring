@@ -21,7 +21,7 @@ public class BrightnessConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new BrightnessTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return BrightnessTransformation.class;
 	}
 }

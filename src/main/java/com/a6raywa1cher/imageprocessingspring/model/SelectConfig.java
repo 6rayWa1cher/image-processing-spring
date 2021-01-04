@@ -30,7 +30,7 @@ public class SelectConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new SelectTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return SelectTransformation.class;
 	}
 }

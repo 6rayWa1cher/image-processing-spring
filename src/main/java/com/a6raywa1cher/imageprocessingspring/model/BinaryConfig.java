@@ -20,7 +20,7 @@ public class BinaryConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new BinaryTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return BinaryTransformation.class;
 	}
 }

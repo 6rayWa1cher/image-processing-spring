@@ -12,5 +12,5 @@ public interface Config {
 
 	ConfigModifiedEvent<?> getEvent();
 
-	Transformation getTransformation();
+	Class<? extends Transformation> getMainTransformation();
 }

@@ -12,6 +12,4 @@ public interface GenericConfig extends Config {
 	}
 
 	boolean isPreview();
-
-
 }

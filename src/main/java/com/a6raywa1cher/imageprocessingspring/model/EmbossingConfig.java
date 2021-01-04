@@ -25,7 +25,7 @@ public class EmbossingConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new EmbossingKernelTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return EmbossingKernelTransformation.class;
 	}
 }

@@ -21,7 +21,7 @@ public class QuantizationConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new QuantizationTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return QuantizationTransformation.class;
 	}
 }

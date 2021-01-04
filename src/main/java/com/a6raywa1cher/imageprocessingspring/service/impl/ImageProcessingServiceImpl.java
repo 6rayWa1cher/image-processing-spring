@@ -11,7 +11,6 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritablePixelFormat;
-import javafx.util.Pair;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -40,12 +40,12 @@ import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 public class ImageProcessingServiceImpl implements ImageProcessingService {
 	private final ImageRepository imageRepository;
 	private final Executor executor = new HeapExecutor();
-	private final List<Class<?>> order;
+	private final List<Class<? extends Transformation>> order;
 
 	@Autowired
-	public ImageProcessingServiceImpl(ImageRepository imageRepository, List<Pair<Class<?>, Config>> container) {
+	public ImageProcessingServiceImpl(ImageRepository imageRepository, List<Class<? extends Transformation>> transformations) {
 		this.imageRepository = imageRepository;
-		this.order = container.stream().map(Pair::getKey).collect(Collectors.toList());
+		this.order = transformations;
 	}
 
 	private ImageBundle convertImage(Image before, boolean preview) {
@@ -59,13 +59,29 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 				.map(Map.Entry::getValue)
 				.forEach(o -> {
 					if (o.isPreviewEnabled()) {
-						Transformation transformation = o.getTransformation();
+						Transformation transformation = initTransformation(o.getMainTransformation(), allConfigs);
 						after[0] = transformation.transform(after[0]);
 						log.info("Appended " + transformation.getClass().getSimpleName());
 					}
 				});
 		}
 		return new ImageBundle(before, after[0], calculateHistogram(after[0]));
+	}
+
+	private <T extends Transformation> T initTransformation(Class<T> transformationClass, Map<Class<?>, Config> allConfigs) {
+		for (Constructor<?> constructor : transformationClass.getDeclaredConstructors()) {
+			Class<?>[] parameterTypes = constructor.getParameterTypes();
+			if (Arrays.stream(parameterTypes).allMatch(allConfigs::containsKey)) {
+				try {
+					return (T) constructor.newInstance(Arrays.stream(parameterTypes)
+						.map(allConfigs::get)
+						.toArray());
+				} catch (Exception e) {
+					log.error("Got exception during initialization", e);
+				}
+			}
+		}
+		throw new IllegalArgumentException("Couldn't initialize " + transformationClass.getSimpleName());
 	}
 
 	private void convertAndSave(Image before, boolean preview) {
@@ -116,8 +132,9 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	@Override
 	public <T extends Config> void applyConfig(T config, Class<T> tClass) {
 		imageRepository.setConfig(config, tClass);
+		Map<Class<?>, Config> allConfigs = imageRepository.getAllConfigs();
 		ImageBundle imageBundle = imageRepository.getImageBundle();
-		Transformation transformation = config.getTransformation();
+		Transformation transformation = initTransformation(config.getMainTransformation(), allConfigs);
 		Image newImage = transformation.transform(imageBundle.getCurrentImage());
 		convertAndSave(newImage, true);
 	}

@@ -19,7 +19,7 @@ public class SobelConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new SobelKernelTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return SobelKernelTransformation.class;
 	}
 }

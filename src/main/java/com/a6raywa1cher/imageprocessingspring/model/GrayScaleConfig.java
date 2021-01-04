@@ -33,8 +33,8 @@ public class GrayScaleConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new GrayScaleTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return GrayScaleTransformation.class;
 	}
 
 	public enum BaseColor {

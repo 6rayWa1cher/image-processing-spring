@@ -21,7 +21,7 @@ public class MiddleConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new MiddleTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return MiddleTransformation.class;
 	}
 }

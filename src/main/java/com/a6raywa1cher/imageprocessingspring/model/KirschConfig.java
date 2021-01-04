@@ -19,7 +19,7 @@ public class KirschConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new KirschKernelTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return KirschKernelTransformation.class;
 	}
 }

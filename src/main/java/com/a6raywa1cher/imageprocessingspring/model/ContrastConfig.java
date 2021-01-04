@@ -22,7 +22,7 @@ public class ContrastConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new ContrastTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return ContrastTransformation.class;
 	}
 }

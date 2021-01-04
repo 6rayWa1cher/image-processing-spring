@@ -21,8 +21,8 @@ public class LowHighFrequencyConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new LowHighFrequencyTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return LowHighFrequencyTransformation.class;
 	}
 
 	public enum KernelType {

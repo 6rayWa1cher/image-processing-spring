@@ -19,7 +19,7 @@ public class SolarizationConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new SolarizationTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return SolarizationTransformation.class;
 	}
 }

@@ -21,7 +21,7 @@ public class NegativeConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new NegativeTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return NegativeTransformation.class;
 	}
 }

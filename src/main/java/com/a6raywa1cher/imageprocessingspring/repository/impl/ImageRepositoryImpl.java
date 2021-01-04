@@ -4,17 +4,18 @@ import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.Config;
 import com.a6raywa1cher.imageprocessingspring.model.ImageBundle;
 import com.a6raywa1cher.imageprocessingspring.repository.ImageRepository;
-import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
@@ -30,9 +31,9 @@ public class ImageRepositoryImpl implements ImageRepository, ApplicationContextA
 	private int imageBundleVersion;
 
 
-	public ImageRepositoryImpl(List<Pair<Class<?>, Config>> container) {
+	public ImageRepositoryImpl(@Qualifier("container") Set<Config> container) {
 		imageBundle = new ImageBundle();
-		this.container = container.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+		this.container = container.stream().collect(Collectors.toMap(Config::getClass, Function.identity()));
 	}
 
 	private void incrementImageBundleVersion() {

@@ -1,35 +1,54 @@
 package com.a6raywa1cher.imageprocessingspring.config;
 
-import com.a6raywa1cher.imageprocessingspring.model.*;
-import javafx.util.Pair;
+import com.a6raywa1cher.imageprocessingspring.model.Config;
+import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Configuration
 public class RepositoryConfig {
 	@Bean
-	public List<Pair<Class<?>, Config>> container() {
-		List<Pair<Class<?>, Config>> container = new ArrayList<>();
-		container.add(new Pair<>(GrayScaleConfig.class, new GrayScaleConfig()));
-		container.add(new Pair<>(BrightnessConfig.class, new BrightnessConfig()));
-		container.add(new Pair<>(NegativeConfig.class, new NegativeConfig()));
-		container.add(new Pair<>(BinaryConfig.class, new BinaryConfig()));
-		container.add(new Pair<>(ContrastConfig.class, new ContrastConfig()));
-		container.add(new Pair<>(GammaConfig.class, new GammaConfig()));
-		container.add(new Pair<>(QuantizationConfig.class, new QuantizationConfig()));
-		container.add(new Pair<>(PseudocolorConfig.class, new PseudocolorConfig()));
-		container.add(new Pair<>(SolarizationConfig.class, new SolarizationConfig()));
-		container.add(new Pair<>(LowHighFrequencyConfig.class, new LowHighFrequencyConfig()));
-		container.add(new Pair<>(GaussConfig.class, new GaussConfig()));
-		container.add(new Pair<>(MiddleConfig.class, new MiddleConfig()));
-		container.add(new Pair<>(SobelConfig.class, new SobelConfig()));
-		container.add(new Pair<>(KirschConfig.class, new KirschConfig()));
-		container.add(new Pair<>(EmbossingConfig.class, new EmbossingConfig()));
+	public List<Class<? extends Transformation>> transformationManifest() throws ClassNotFoundException {
+		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+		provider.addIncludeFilter((metadataReader, metadataReaderFactory) ->
+			Arrays.asList(metadataReader.getClassMetadata().getInterfaceNames()).contains("Transformation"));
+		Map<Class<? extends Transformation>, Integer> orderMap = new HashMap<>();
+		for (BeanDefinition beanDefinition :
+			provider.findCandidateComponents("com.a6raywa1cher.imageprocessingspring.transformations")) {
+			Class<? extends Transformation> cl = (Class<? extends Transformation>) Class.forName(beanDefinition.getBeanClassName());
+			int order = 0;
+			if (cl.isAnnotationPresent(Order.class)) {
+				order = cl.getAnnotation(Order.class).value();
+			}
+			orderMap.put(cl, order);
+		}
+		return orderMap.keySet().stream()
+			.sorted(Comparator.comparingInt(orderMap::get))
+			.collect(Collectors.toList());
+	}
 
-		container.add(new Pair<>(SelectConfig.class, new SelectConfig())); // always last
-		return container;
+	@Bean
+	public Set<Config> container() throws ClassNotFoundException, NoSuchMethodException,
+		IllegalAccessException, InvocationTargetException, InstantiationException {
+		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+		provider.addIncludeFilter((metadataReader, metadataReaderFactory) -> {
+				return Arrays.stream(metadataReader.getClassMetadata().getInterfaceNames())
+					.anyMatch(interfaceName -> interfaceName.equals("com.a6raywa1cher.imageprocessingspring.model.Config")
+						|| interfaceName.equals("com.a6raywa1cher.imageprocessingspring.model.GenericConfig"));
+			}
+		);
+		Set<Config> set = new HashSet<>();
+		for (BeanDefinition bd : provider.findCandidateComponents("com.a6raywa1cher.imageprocessingspring.model")) {
+			Config config = (Config) Class.forName(bd.getBeanClassName()).getDeclaredConstructor().newInstance();
+			set.add(config);
+		}
+		return set;
 	}
 }

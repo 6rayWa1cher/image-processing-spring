@@ -21,7 +21,7 @@ public class GammaConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new GammaTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return GammaTransformation.class;
 	}
 }

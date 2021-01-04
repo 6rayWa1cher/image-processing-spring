@@ -21,7 +21,7 @@ public class GaussConfig implements GenericConfig {
 	}
 
 	@Override
-	public Transformation getTransformation() {
-		return new GaussKernelTransformation(this);
+	public Class<? extends Transformation> getMainTransformation() {
+		return GaussKernelTransformation.class;
 	}
 }
