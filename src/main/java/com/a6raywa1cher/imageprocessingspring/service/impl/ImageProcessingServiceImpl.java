@@ -136,6 +136,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		ImageBundle imageBundle = imageRepository.getImageBundle();
 		Transformation transformation = initTransformation(config.getMainTransformation(), allConfigs);
 		Image newImage = transformation.transform(imageBundle.getCurrentImage());
+		imageRepository.setImageBundle(new ImageBundle(newImage, newImage, new double[256]));
 		convertAndSave(newImage, true);
 	}
 

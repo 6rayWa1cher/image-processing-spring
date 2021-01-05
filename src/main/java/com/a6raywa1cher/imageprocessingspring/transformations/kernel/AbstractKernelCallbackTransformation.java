@@ -53,12 +53,12 @@ public abstract class AbstractKernelCallbackTransformation implements Transforma
 						for (int j = 0; j < kernelWidth; j++) {
 							int extendedCurrentX = extendedCenterX - kernelXOrigin + j;
 							int extendedCurrentY = extendedCenterY - kernelYOrigin + i;
-							int extendedCoord = (extendedCurrentY * extendedWidth + extendedCurrentX) * 4 + channel;
+							int extendedCoord = toCoord(extendedCurrentX, extendedCurrentY, extendedWidth, channel);
 							dataToKernel[kernelWidth * i + j] = Byte.toUnsignedInt(source[extendedCoord]);
 						}
 					}
 					float sum = getKernelCallback(dataToKernel);
-					int targetCoord = (y * width + x) * 4 + channel;
+					int targetCoord = toCoord(x, y, width, channel);
 					target[targetCoord] = (byte) (sum < 0 ? 0 : (sum > 255 ? 255 : sum));
 				}
 			}

@@ -26,4 +26,8 @@ public class JavaFXUtils {
 	public static double normalize(double value, int... elements) {
 		return value / Arrays.stream(elements).sum();
 	}
+
+	public static int toCoord(int x, int y, int width, int channel) {
+		return (y * width + x) * 4 + channel;
+	}
 }

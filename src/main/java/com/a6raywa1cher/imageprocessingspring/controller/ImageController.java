@@ -2,9 +2,11 @@ package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.model.ScalingConfig;
 import com.a6raywa1cher.imageprocessingspring.model.SelectConfig;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -14,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Controller;
 
+import java.util.Comparator;
+import java.util.stream.Stream;
+
 // MOUSE_PRESSED, MOUSE_DRAGx(1+), MOUSE_RELEASED
 @Controller
 @Slf4j
@@ -21,10 +26,8 @@ public class ImageController {
 	private final ImageProcessingService service;
 	public ImageView image;
 	private int selectAutomataState;
-	private int x1;
-	private int y1;
-	private int x2;
-	private int y2;
+	private Point2D p1 = new Point2D(0, 0), p2 = new Point2D(0, 0), p3 = new Point2D(0, 0);
+	private boolean secondaryKey;
 	private Color color;
 	private volatile boolean updating;
 
@@ -40,66 +43,149 @@ public class ImageController {
 	}
 
 	private void onMousePressed(MouseEvent event) {
-		log.info("onMousePressed " + event.toString());
-		if (!checkPoint(event.getX(), event.getY())) {
+		log.debug("onMousePressed " + event.toString());
+		if (!isPointInImage(event.getX(), event.getY())) {
 			return;
 		}
-		x1 = (int) event.getX();
-		y1 = (int) event.getY();
-		selectAutomataState = 0;
+		Point2D eventPoint = new Point2D(event.getX(), event.getY());
+		if (selectAutomataState == 2 &&
+			eventPoint.distance(getNearestToBox(eventPoint)) <= 3d
+		) {
+			secondaryKey = event.isSecondaryButtonDown();
+			Point2D farthestToBox = getFarthestToBox(eventPoint);
+			Point2D nearestToBox = getNearestToBox(eventPoint);
+			p1 = farthestToBox;
+			p3 = p2 = nearestToBox;
+			selectAutomataState = 0;
+		} else if ((selectAutomataState == 0 || selectAutomataState == 2) && !event.isSecondaryButtonDown()) {
+			secondaryKey = event.isSecondaryButtonDown();
+			this.p1 = eventPoint;
+			selectAutomataState = 0;
+		}
+		log.info("" + selectAutomataState);
 		submitSelectUpdate();
 	}
 
 	private void onMouseDragged(MouseEvent event) {
-		log.info("onMouseDragged " + event.toString());
-		if (!checkPoint(event.getX(), event.getY())) {
+		log.debug("onMouseDragged " + event.toString());
+		if (!isPointInImage(event.getX(), event.getY())) {
 			return;
 		}
-		x2 = (int) event.getX();
-		y2 = (int) event.getY();
+		Point2D eventPoint = new Point2D(event.getX(), event.getY());
+		this.p2 = eventPoint;
 		selectAutomataState = 1;
+		log.info("" + selectAutomataState);
 		submitSelectUpdate();
+		if (secondaryKey)
+			submitScaleUpdate();
 	}
 
 	private void onMouseReleased(MouseEvent event) {
-		log.info("onMouseReleased " + event.toString());
-		if (!checkPoint(event.getX(), event.getY())) {
+		log.debug("onMouseReleased " + event.toString());
+		if (!isPointInImage(event.getX(), event.getY())) {
 			return;
 		}
-		x2 = (int) event.getX();
-		y2 = (int) event.getY();
+		Point2D eventPoint = new Point2D(event.getX(), event.getY());
 		if (selectAutomataState == 1) {
 			selectAutomataState = 2;
+			this.p2 = eventPoint;
+		} else if (secondaryKey) {
+			submitScaleApply();
+			selectAutomataState = 0;
+		} else {
+			this.p2 = eventPoint;
 		}
+		log.info("" + selectAutomataState);
 		submitSelectUpdate();
+		if (secondaryKey)
+			submitScaleUpdate();
 	}
 
-	protected SelectConfig stateToInformation() {
-		return new SelectConfig(x1, y1, x2, y2, color, selectAutomataState != 0);
+	protected SelectConfig stateToSelectInformation() {
+		return new SelectConfig((int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY(),
+			color, selectAutomataState != 0);
 	}
 
-	protected synchronized void informationToState(SelectConfig config) {
+	protected synchronized void informationToSelectState(SelectConfig config) {
 		updating = true;
 		try {
-			x1 = config.getX1();
-			y1 = config.getY1();
-			x2 = config.getX2();
-			y2 = config.getY2();
-			selectAutomataState = config.isPreview() ? 2 : 0;
+			p1 = new Point2D(config.getX1(), config.getY1());
+			p2 = new Point2D(config.getX2(), config.getY2());
 			color = config.getColor();
 		} finally {
 			updating = false;
 		}
 	}
 
-	private boolean checkPoint(double x, double y) {
+	protected ScalingConfig stateToScalingInformation() {
+		return new ScalingConfig(p1, p3, p1, p2, ScalingConfig.ScalingAlgorithm.NEAREST_NEIGHBOR,
+			secondaryKey && selectAutomataState != 0);
+	}
+
+	protected synchronized void informationToScalingState(ScalingConfig config) {
+		updating = true;
+		try {
+			p1 = config.getFromP1();
+			p3 = config.getFromP2();
+			p2 = config.getToP2();
+		} finally {
+			updating = false;
+		}
+	}
+
+	private boolean isPointInImage(double x, double y) {
 		Image image = this.image.getImage();
 		return x < image.getWidth() && y < image.getHeight();
 	}
 
+
+	private Point2D getNearestToBox(Point2D p) {
+		double minX = Math.min(p1.getX(), p2.getX());
+		double maxX = Math.max(p1.getX(), p2.getX());
+		double minY = Math.min(p1.getY(), p2.getY());
+		double maxY = Math.max(p1.getY(), p2.getY());
+
+		return Stream.of(
+			new Point2D(minX, minY),
+			new Point2D(minX, maxY),
+			new Point2D(maxX, minY),
+			new Point2D(maxX, maxY)
+		)
+			.min(Comparator.comparingDouble(p::distance))
+			.orElseThrow();
+	}
+
+	private Point2D getFarthestToBox(Point2D p) {
+		double minX = Math.min(p1.getX(), p2.getX());
+		double maxX = Math.max(p1.getX(), p2.getX());
+		double minY = Math.min(p1.getY(), p2.getY());
+		double maxY = Math.max(p1.getY(), p2.getY());
+
+		return Stream.of(
+			new Point2D(minX, minY),
+			new Point2D(minX, maxY),
+			new Point2D(maxX, minY),
+			new Point2D(maxX, maxY)
+		)
+			.max(Comparator.comparingDouble(p::distance))
+			.orElseThrow();
+	}
+
 	private void submitSelectUpdate() {
 		if (!updating) {
-			service.setConfig(stateToInformation(), SelectConfig.class);
+			service.setConfig(stateToSelectInformation(), SelectConfig.class);
+		}
+	}
+
+	private void submitScaleUpdate() {
+		if (!updating) {
+			service.setConfig(stateToScalingInformation(), ScalingConfig.class);
+		}
+	}
+
+	private void submitScaleApply() {
+		if (!updating) {
+			service.applyConfig(stateToScalingInformation(), ScalingConfig.class);
 		}
 	}
 
@@ -116,11 +202,17 @@ public class ImageController {
 	}
 
 	@EventListener(ConfigModifiedEvent.class)
-	public void onApplicationEvent(ConfigModifiedEvent<SelectConfig> event) {
-		if (!event.getClazz().equals(SelectConfig.class)) return;
-		Platform.runLater(() -> {
-			SelectConfig tConfig = event.getConfig();
-			informationToState(tConfig);
-		});
+	public void onApplicationEvent(ConfigModifiedEvent<?> event) {
+		if (event.getClazz().equals(SelectConfig.class)) {
+			Platform.runLater(() -> {
+				SelectConfig tConfig = (SelectConfig) event.getConfig();
+				informationToSelectState(tConfig);
+			});
+		} else if (event.getClazz().equals(ScalingConfig.class)) {
+			Platform.runLater(() -> {
+				ScalingConfig tConfig = (ScalingConfig) event.getConfig();
+				informationToScalingState(tConfig);
+			});
+		}
 	}
 }

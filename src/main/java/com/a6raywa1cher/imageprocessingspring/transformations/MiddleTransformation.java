@@ -44,7 +44,7 @@ public class MiddleTransformation implements Transformation {
 					for (int j = 0; j < windowSize; j++) {
 						int extendedX = extendedXCenter - windowOffset + j;
 						int extendedY = extendedYCenter - windowOffset + i;
-						int extendedCoords = (extendedY * extendedWidth + extendedX) * 4;
+						int extendedCoords = toCoord(extendedX, extendedY, extendedWidth, 0);
 						long pixelIntensity = AlgorithmUtils.intensity(Byte.toUnsignedInt(source[extendedCoords + 2]),
 							Byte.toUnsignedInt(source[extendedCoords + 1]), Byte.toUnsignedInt(source[extendedCoords]));
 						pixels[i * windowSize + j] = (pixelIntensity << 32) |
@@ -56,7 +56,7 @@ public class MiddleTransformation implements Transformation {
 				}
 				Arrays.sort(pixels);
 				long middlePixel = pixels[(windowSize * windowSize - 1) / 2];
-				int targetCoords = (y * width + x) * 4;
+				int targetCoords = toCoord(x, y, width, 0);
 				target[targetCoords] = (byte) ((middlePixel >> 24) & 0xFF);
 				target[targetCoords + 1] = (byte) ((middlePixel >> 16) & 0xFF);
 				target[targetCoords + 2] = (byte) ((middlePixel >> 8) & 0xFF);
