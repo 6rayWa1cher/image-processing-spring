@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class ScalingConfig implements GenericConfig {
 	private Point2D fromP1, fromP2;
 	private Point2D toP1, toP2;
