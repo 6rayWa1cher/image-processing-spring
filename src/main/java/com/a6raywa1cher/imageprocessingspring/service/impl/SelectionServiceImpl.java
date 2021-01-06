@@ -60,8 +60,8 @@ public class SelectionServiceImpl implements SelectionService {
 		boolean isPrimaryKey = event.isPrimaryButtonDown();
 
 		if (head == null || head instanceof ClickedMouseInnerEvent) {
-			repository.pushEvent(new SelectedAreaMouseInnerEvent(
-				eventPoint, eventPoint, isPrimaryKey, true
+			repository.pushEvent(new SelectedPointMouseInnerEvent(
+				eventPoint, isPrimaryKey
 			));
 		} else if (head instanceof SelectedAreaMouseInnerEvent) {
 			SelectedAreaMouseInnerEvent headEvent = (SelectedAreaMouseInnerEvent) head;
@@ -105,69 +105,7 @@ public class SelectionServiceImpl implements SelectionService {
 		}
 	}
 
-
-//	public void processEvent(MouseEvent event) {
-//		if (event.isPrimaryButtonDown() == event.isSecondaryButtonDown()) return;
-//
-//		EventType eventType = event.getEventType().equals(MouseEvent.MOUSE_PRESSED) ? EventType.PRESSED :
-//			event.getEventType().equals(MouseEvent.MOUSE_DRAGGED) ? EventType.DRAG :
-//				EventType.RELEASED;
-//		Point2D eventPoint = new Point2D(event.getX(), event.getY());
-//
-//		boolean isPrimaryKey = event.isPrimaryButtonDown();
-//
-//		if (currSelect != null && isPrimaryKey != currSelect.isPrimaryKey() && state != 3) return;
-//
-//		Select beforePrev = prevSelect, beforeCurr = currSelect;
-//
-//		switch (state) {
-//			default -> {
-//				if (eventType == EventType.PRESSED) {
-//					prevSelect = null;
-//					currSelect = new Select(eventPoint, isPrimaryKey);
-//					state = 1;
-//				}
-//			}
-//			case 1 -> {
-//				if (eventType == EventType.DRAG) {
-//					currSelect = currSelect.withP2(eventPoint);
-//					state = 2;
-//				} else if (eventType == EventType.RELEASED) {
-//					prevSelect = null;
-//					currSelect = null;
-//					state = 0;
-//				}
-//			}
-//			case 2 -> {
-//				if (eventType == EventType.DRAG) {
-//					currSelect = currSelect.withP2(eventPoint);
-//					state = 2;
-//				} else if (eventType == EventType.RELEASED) {
-//					currSelect = currSelect.withP2(eventPoint);
-//					state = 3;
-//				}
-//			}
-//			case 3 -> {
-//				if (eventType == EventType.PRESSED) {
-//					prevSelect = currSelect;
-//					if (eventPoint.distance(getNearestAtBox(eventPoint, currSelect)) <= 2d) {
-//						currSelect = new Select(getFarthestAtBox(eventPoint, currSelect), eventPoint, isPrimaryKey);
-//					} else {
-//						currSelect = new Select(eventPoint, isPrimaryKey);
-//					}
-//					state = 1;
-//				}
-//			}
-//		}
-//
-//		if (!Objects.equals(beforePrev, prevSelect) || !Objects.equals(beforeCurr, currSelect)) {
-//			publishEvent();
-//		}
-//	}
-
 	private enum EventType {
 		PRESSED, DRAG, RELEASED
 	}
-
-
 }
