@@ -36,7 +36,7 @@ public class ImageController {
 
 	private boolean isPointInImage(double x, double y) {
 		Image image = this.image.getImage();
-		return x < image.getWidth() && y < image.getHeight();
+		return x < image.getWidth() && y < image.getHeight() && 0 <= x && 0 <= y;
 	}
 
 	@EventListener(ImageModifiedEvent.class)
