@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="78.0" prefWidth="133.0"
+            xmlns="http://javafx.com/javafx/11.0.1"
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.ScalingController">
+    <children>
+        <Label text="Scaling"/>
+        <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+        <AnchorPane layoutY="21.0" prefHeight="57.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <children>
+                <ChoiceBox fx:id="algorithmChooser" layoutY="2.0" prefHeight="25.0" prefWidth="127.0"
+                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>

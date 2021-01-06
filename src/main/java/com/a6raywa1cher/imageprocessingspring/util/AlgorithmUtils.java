@@ -20,6 +20,14 @@ public class AlgorithmUtils {
 		return Math.min(255, (int) Math.round(rw * r + gw * g + bw * b));
 	}
 
+	public static byte borderPixel(int pixel) {
+		return pixel > 255 ? (byte) 255 : (pixel < 0 ? 0 : (byte) pixel);
+	}
+
+	public static int getPixel(byte[] image, int x, int y, int width, int channel) {
+		return Byte.toUnsignedInt(image[toCoord(x, y, width, channel)]);
+	}
+
 	public static WritableImage extendImageSecondStrategy(Image image, int byPixels) {
 		WritableImage writableImage = imageToWriteable(image);
 		PixelReader pixelReader = writableImage.getPixelReader();

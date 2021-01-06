@@ -29,6 +29,9 @@ public class DelegatingScalingTransformation implements Transformation {
 			case NEAREST_NEIGHBOR -> {
 				return new NearestNeighborScalingTransformation(p1, p2, p3, p4).transform(image);
 			}
+			case BILINEAR -> {
+				return new BilinearScalingTransformation(p1, p2, p3, p4).transform(image);
+			}
 			default -> throw new RuntimeException("Unknown scaling algorithm");
 		}
 	}

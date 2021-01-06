@@ -118,8 +118,15 @@
                                 </TitledPane>
                                 <TitledPane animated="false" text="untitled 2">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0"
-                                                    prefWidth="200.0"/>
+                                        <ScrollPane fx:id="scrollPane2" hbarPolicy="NEVER">
+                                            <AnchorPane fx:id="anchorPane2" prefHeight="455.0" prefWidth="177.0">
+                                                <children>
+                                                    <fx:include source="scaling.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="0.0"/>
+                                                </children>
+                                            </AnchorPane>
+                                        </ScrollPane>
                                     </content>
                                 </TitledPane>
                                 <TitledPane animated="false" text="untitled 3">

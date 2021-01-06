@@ -2,6 +2,7 @@ package com.a6raywa1cher.imageprocessingspring.controller;
 
 import com.a6raywa1cher.imageprocessingspring.event.ConfigModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.event.ImageModifiedEvent;
+import com.a6raywa1cher.imageprocessingspring.event.ScalingAlgorithmModifiedEvent;
 import com.a6raywa1cher.imageprocessingspring.model.ScalingConfig;
 import com.a6raywa1cher.imageprocessingspring.model.SelectConfig;
 import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
@@ -27,6 +28,7 @@ public class ImageController {
 	public ImageView image;
 	private int selectAutomataState;
 	private Point2D p1 = new Point2D(0, 0), p2 = new Point2D(0, 0), p3 = new Point2D(0, 0);
+	private ScalingConfig.ScalingAlgorithm scalingAlgorithm;
 	private boolean secondaryKey;
 	private Color color;
 	private volatile boolean updating;
@@ -118,7 +120,7 @@ public class ImageController {
 	}
 
 	protected ScalingConfig stateToScalingInformation() {
-		return new ScalingConfig(p1, p3, p1, p2, ScalingConfig.ScalingAlgorithm.NEAREST_NEIGHBOR,
+		return new ScalingConfig(p1, p3, p1, p2, scalingAlgorithm,
 			secondaryKey && selectAutomataState != 0);
 	}
 
@@ -128,6 +130,7 @@ public class ImageController {
 			p1 = config.getFromP1();
 			p3 = config.getFromP2();
 			p2 = config.getToP2();
+			scalingAlgorithm = config.getAlgorithm();
 		} finally {
 			updating = false;
 		}
@@ -214,5 +217,12 @@ public class ImageController {
 				informationToScalingState(tConfig);
 			});
 		}
+	}
+
+	@EventListener(ScalingAlgorithmModifiedEvent.class)
+	public void onApplicationEvent(ScalingAlgorithmModifiedEvent event) {
+		scalingAlgorithm = (ScalingConfig.ScalingAlgorithm) event.getSource();
+		if (selectAutomataState != 0)
+			submitScaleUpdate();
 	}
 }
