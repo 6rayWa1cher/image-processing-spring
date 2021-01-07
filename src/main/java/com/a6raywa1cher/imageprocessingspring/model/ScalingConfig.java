@@ -28,6 +28,6 @@ public class ScalingConfig implements GenericConfig {
 	}
 
 	public enum ScalingAlgorithm {
-		NEAREST_NEIGHBOR, BILINEAR
+		NEAREST_NEIGHBOR, BILINEAR, BICUBIC
 	}
 }

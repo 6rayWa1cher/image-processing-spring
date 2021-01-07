@@ -116,7 +116,7 @@
                                         </ScrollPane>
                                     </content>
                                 </TitledPane>
-                                <TitledPane animated="false" text="untitled 2">
+                                <TitledPane animated="false" text="Settings">
                                     <content>
                                         <ScrollPane fx:id="scrollPane2" hbarPolicy="NEVER">
                                             <AnchorPane fx:id="anchorPane2" prefHeight="455.0" prefWidth="177.0">
