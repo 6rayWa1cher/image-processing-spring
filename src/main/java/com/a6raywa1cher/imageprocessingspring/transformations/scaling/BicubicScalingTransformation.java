@@ -2,6 +2,7 @@ package com.a6raywa1cher.imageprocessingspring.transformations.scaling;
 
 import com.a6raywa1cher.imageprocessingspring.transformations.SlaveTransformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.image.*;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 @Slf4j
 public class BicubicScalingTransformation implements Transformation {
 	private final Point2D p1, p2, p3, p4;
+	private ObjectProperty<Double> progressBarProperty;
 
 	public BicubicScalingTransformation(Point2D p1, Point2D p2, Point2D p3, Point2D p4) {
 		this.p1 = p1;
@@ -113,6 +115,9 @@ public class BicubicScalingTransformation implements Transformation {
 		byte[] target = new byte[width * height * 4];
 		extendedImagePixelReader.getPixels(0, 0, extendedWidth, extendedHeight, pixelFormat, source, 0, extendedWidth * 4);
 		pixelReader.getPixels(0, 0, width, height, pixelFormat, target, 0, width * 4);
+
+		double currentPercent = 0d;
+
 		for (int x = toX; x < toX + toW; x++) {
 			for (int y = toY; y < toY + toH; y++) {
 				for (int channel = 0; channel < 3; channel++) {
@@ -138,11 +143,21 @@ public class BicubicScalingTransformation implements Transformation {
 						3, verticalInterpolated[3]
 					), sourceX - gridStartX)));
 				}
+				double p = (double) ((x - toX) * toH + (y - toY)) / (toW * toH);
+				if (p - currentPercent >= 0.01d) {
+					currentPercent = p;
+					progressBarProperty.set(currentPercent);
+				}
 			}
 		}
 		writableImage.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), target, 0, 4 * width);
 
 		log.info("{}: {}ms", this.getClass().getSimpleName(), System.currentTimeMillis() - start);
 		return writableImage;
+	}
+
+	@Override
+	public void setProgressBarProperty(ObjectProperty<Double> progressBarProperty) {
+		this.progressBarProperty = progressBarProperty;
 	}
 }

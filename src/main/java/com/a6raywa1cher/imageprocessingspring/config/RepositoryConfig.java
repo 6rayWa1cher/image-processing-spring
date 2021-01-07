@@ -2,6 +2,8 @@ package com.a6raywa1cher.imageprocessingspring.config;
 
 import com.a6raywa1cher.imageprocessingspring.model.Config;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -56,5 +58,15 @@ public class RepositoryConfig {
 			set.add(config);
 		}
 		return set;
+	}
+
+	@Bean
+	public ObjectProperty<Double> progressBarProperty() {
+		return new SimpleObjectProperty<>(0.0d);
+	}
+
+	@Bean
+	public ObjectProperty<String> statusProperty() {
+		return new SimpleObjectProperty<>("");
 	}
 }

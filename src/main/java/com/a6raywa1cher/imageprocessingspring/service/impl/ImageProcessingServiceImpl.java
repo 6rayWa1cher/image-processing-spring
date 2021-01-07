@@ -7,6 +7,7 @@ import com.a6raywa1cher.imageprocessingspring.service.ImageProcessingService;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
 import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
 import com.a6raywa1cher.imageprocessingspring.util.HeapExecutor;
+import javafx.beans.property.ObjectProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -14,6 +15,7 @@ import javafx.scene.image.WritablePixelFormat;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,13 +24,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -41,11 +41,17 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 	private final ImageRepository imageRepository;
 	private final Executor executor = new HeapExecutor();
 	private final List<Class<? extends Transformation>> order;
+	private final ObjectProperty<Double> progressBarProperty;
+	private final ObjectProperty<String> statusProperty;
 
 	@Autowired
-	public ImageProcessingServiceImpl(ImageRepository imageRepository, List<Class<? extends Transformation>> transformations) {
+	public ImageProcessingServiceImpl(ImageRepository imageRepository, List<Class<? extends Transformation>> transformations,
+									  @Qualifier("progressBarProperty") ObjectProperty<Double> progressBarProperty,
+									  @Qualifier("statusProperty") ObjectProperty<String> statusProperty) {
 		this.imageRepository = imageRepository;
 		this.order = transformations;
+		this.progressBarProperty = progressBarProperty;
+		this.statusProperty = statusProperty;
 	}
 
 	private ImageBundle convertImage(Image before, boolean preview) {
@@ -60,25 +66,47 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 				.forEach(o -> {
 					if (o.isPreviewEnabled()) {
 						Transformation transformation = initTransformation(o.getMainTransformation(), allConfigs);
+						progressBarProperty.set(0.0d);
+						statusProperty.set(transformation.getClass().getSimpleName());
+
+						transformation.setProgressBarProperty(progressBarProperty);
+						transformation.setStatusProperty(statusProperty);
 						after[0] = transformation.transform(after[0]);
+
 						log.info("Appended " + transformation.getClass().getSimpleName());
+						progressBarProperty.set(1.0d);
 					}
 				});
 		}
+		statusProperty.set("");
+		progressBarProperty.set(0.0d);
 		return new ImageBundle(before, after[0], calculateHistogram(after[0]));
 	}
 
 	private <T extends Transformation> T initTransformation(Class<T> transformationClass, Map<Class<?>, Config> allConfigs) {
 		for (Constructor<?> constructor : transformationClass.getDeclaredConstructors()) {
-			Class<?>[] parameterTypes = constructor.getParameterTypes();
-			if (Arrays.stream(parameterTypes).allMatch(allConfigs::containsKey)) {
-				try {
-					return (T) constructor.newInstance(Arrays.stream(parameterTypes)
-						.map(allConfigs::get)
-						.toArray());
-				} catch (Exception e) {
-					log.error("Got exception during initialization", e);
+			Parameter[] parameters = constructor.getParameters();
+			try {
+				Object[] bakedParameters = Arrays.stream(parameters)
+					.map(p -> {
+						if (allConfigs.containsKey(p.getType())) {
+							return allConfigs.get(p.getType());
+						} else if (p.getType().isAssignableFrom(ObjectProperty.class) && p.isAnnotationPresent(Qualifier.class)) {
+							Qualifier qualifier = p.getAnnotation(Qualifier.class);
+							if (qualifier.value().equals("progressBarProperty")) {
+								return progressBarProperty;
+							}
+						}
+						return null;
+					})
+					.filter(Objects::nonNull)
+					.toArray();
+				if (bakedParameters.length != parameters.length) {
+					continue;
 				}
+				return (T) constructor.newInstance(bakedParameters);
+			} catch (Exception e) {
+				log.error("Got exception during initialization", e);
 			}
 		}
 		throw new IllegalArgumentException("Couldn't initialize " + transformationClass.getSimpleName());
@@ -86,8 +114,10 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 
 	private void convertAndSave(Image before, boolean preview) {
 		CompletableFuture.runAsync(() -> {
+			progressBarProperty.set(0.0d);
 			int version = imageRepository.getImageBundleVersion();
 			imageRepository.setImageBundle(convertImage(before, preview), version);
+			progressBarProperty.set(0.0d);
 		}, executor)
 			.exceptionally(e -> {
 				log.error("Exception during converting", e);

@@ -2,6 +2,7 @@ package com.a6raywa1cher.imageprocessingspring.transformations.kernel;
 
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
 import com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils;
+import javafx.beans.property.ObjectProperty;
 import javafx.scene.image.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,6 +16,7 @@ public abstract class AbstractKernelCallbackTransformation implements Transforma
 	private final int kernelYOrigin;
 	private final int kernelWidth;
 	private final int kernelHeight;
+	private ObjectProperty<Double> progressBarProperty;
 
 	protected AbstractKernelCallbackTransformation(int kernelSize) {
 		this.kernelWidth = kernelSize;
@@ -44,6 +46,9 @@ public abstract class AbstractKernelCallbackTransformation implements Transforma
 		extendedImagePixelReader.getPixels(0, 0, extendedWidth, extendedHeight, pixelFormat, source, 0, extendedWidth * 4);
 		pixelReader.getPixels(0, 0, width, height, pixelFormat, target, 0, width * 4);
 		int[] dataToKernel = new int[kernelWidth * kernelHeight];
+
+		double currentPercent = 0d;
+
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				for (int channel = 0; channel < 3; channel++) {
@@ -61,6 +66,11 @@ public abstract class AbstractKernelCallbackTransformation implements Transforma
 					int targetCoord = toCoord(x, y, width, channel);
 					target[targetCoord] = (byte) (sum < 0 ? 0 : (sum > 255 ? 255 : sum));
 				}
+				double p = (double) (x * height + y) / (width * height);
+				if (p - currentPercent >= 0.01d) {
+					currentPercent = p;
+					progressBarProperty.set(currentPercent);
+				}
 			}
 		}
 		writableImage.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), target, 0, 4 * width);
@@ -68,5 +78,10 @@ public abstract class AbstractKernelCallbackTransformation implements Transforma
 
 		log.info("{}: {}ms", this.getClass().getSimpleName(), System.currentTimeMillis() - start);
 		return writableImage;
+	}
+
+	@Override
+	public void setProgressBarProperty(ObjectProperty<Double> progressBarProperty) {
+		this.progressBarProperty = progressBarProperty;
 	}
 }

@@ -2,6 +2,7 @@ package com.a6raywa1cher.imageprocessingspring.transformations.scaling;
 
 import com.a6raywa1cher.imageprocessingspring.model.ScalingConfig;
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,8 @@ import org.springframework.core.annotation.Order;
 public class DelegatingScalingTransformation implements Transformation {
 	private final ScalingConfig.ScalingAlgorithm scalingAlgorithm;
 	private final Point2D p1, p2, p3, p4;
+	private ObjectProperty<Double> progressBarProperty;
+	private ObjectProperty<String> statusProperty;
 
 	public DelegatingScalingTransformation(ScalingConfig config) {
 		this.scalingAlgorithm = config.getAlgorithm();
@@ -25,17 +28,25 @@ public class DelegatingScalingTransformation implements Transformation {
 
 	@Override
 	public Image transform(Image image) {
-		switch (scalingAlgorithm) {
-			case NEAREST_NEIGHBOR -> {
-				return new NearestNeighborScalingTransformation(p1, p2, p3, p4).transform(image);
-			}
-			case BILINEAR -> {
-				return new BilinearScalingTransformation(p1, p2, p3, p4).transform(image);
-			}
-			case BICUBIC -> {
-				return new BicubicScalingTransformation(p1, p2, p3, p4).transform(image);
-			}
-			default -> throw new RuntimeException("Unknown scaling algorithm");
-		}
+		Transformation transformation = switch (scalingAlgorithm) {
+			case NEAREST_NEIGHBOR -> new NearestNeighborScalingTransformation(p1, p2, p3, p4);
+			case BILINEAR -> new BilinearScalingTransformation(p1, p2, p3, p4);
+			case BICUBIC -> new BicubicScalingTransformation(p1, p2, p3, p4);
+			default -> null;
+		};
+		if (transformation == null) throw new RuntimeException("Unknown scaling algorithm");
+		transformation.setProgressBarProperty(progressBarProperty);
+		transformation.setStatusProperty(statusProperty);
+		return transformation.transform(image);
+	}
+
+	@Override
+	public void setProgressBarProperty(ObjectProperty<Double> progressBarProperty) {
+		this.progressBarProperty = progressBarProperty;
+	}
+
+	@Override
+	public void setStatusProperty(ObjectProperty<String> statusProperty) {
+		this.statusProperty = statusProperty;
 	}
 }

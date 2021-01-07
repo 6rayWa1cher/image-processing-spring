@@ -1,6 +1,7 @@
 package com.a6raywa1cher.imageprocessingspring.transformations.scaling;
 
 import com.a6raywa1cher.imageprocessingspring.transformations.Transformation;
+import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.image.*;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 @Slf4j
 public abstract class AbstractScalingTransformation implements Transformation {
 	private final Point2D p1, p2, p3, p4;
+	private ObjectProperty<Double> progressBarProperty;
 
 	public AbstractScalingTransformation(Point2D p1, Point2D p2, Point2D p3, Point2D p4) {
 		this.p1 = p1;
@@ -47,6 +49,8 @@ public abstract class AbstractScalingTransformation implements Transformation {
 		double scaleConstX = ((double) fromW) / toW;
 		double scaleConstY = ((double) fromH) / toH;
 
+		double currentPercent = 0d;
+
 		for (int x = toX; x < toX + toW; x++) {
 			for (int y = toY; y < toY + toH; y++) {
 				for (int channel = 0; channel < 3; channel++) {
@@ -55,11 +59,21 @@ public abstract class AbstractScalingTransformation implements Transformation {
 					double sourceY = fromY + (y - toY) * scaleConstY;
 					target[targetCoord] = calculateTarget(source, sourceX, sourceY, channel, width, height);
 				}
+				double p = (double) ((x - toX) * toH + (y - toY)) / (toW * toH);
+				if (p - currentPercent >= 0.01d) {
+					currentPercent = p;
+					progressBarProperty.set(currentPercent);
+				}
 			}
 		}
 		writableImage.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), target, 0, 4 * width);
 
 		log.info("{}: {}ms", this.getClass().getSimpleName(), System.currentTimeMillis() - start);
 		return writableImage;
+	}
+
+	@Override
+	public void setProgressBarProperty(ObjectProperty<Double> progressBarProperty) {
+		this.progressBarProperty = progressBarProperty;
 	}
 }

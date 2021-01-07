@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+<HBox xmlns:fx="http://javafx.com/fxml"
+      xmlns="http://javafx.com/javafx"
+      fx:controller="com.a6raywa1cher.imageprocessingspring.controller.StatusController"
+      HBox.hgrow="NEVER">
+    <children>
+        <Label alignment="CENTER_RIGHT" maxWidth="-1.0" prefHeight="16.0" prefWidth="288.0" text="Right status"
+               textAlignment="RIGHT" fx:id="rightStatus">
+            <font>
+                <Font size="11.0"/>
+            </font>
+            <textFill>
+                <Color blue="0.625" green="0.625" red="0.625"/>
+            </textFill>
+        </Label>
+        <ProgressBar fx:id="progressBar" prefHeight="17.0" prefWidth="230.0" progress="0.0"/>
+    </children>
+</HBox>
