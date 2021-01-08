@@ -69,9 +69,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 						progressBarProperty.set(0.0d);
 						statusProperty.set(transformation.getClass().getSimpleName());
 
-						transformation.setProgressBarProperty(progressBarProperty);
-						transformation.setStatusProperty(statusProperty);
-						after[0] = transformation.transform(after[0]);
+						after[0] = appendTransformation(after[0], transformation);
 
 						log.info("Appended " + transformation.getClass().getSimpleName());
 						progressBarProperty.set(1.0d);
@@ -81,6 +79,12 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		statusProperty.set("");
 		progressBarProperty.set(0.0d);
 		return new ImageBundle(before, after[0], calculateHistogram(after[0]));
+	}
+
+	private Image appendTransformation(Image image, Transformation transformation) {
+		transformation.setProgressBarProperty(progressBarProperty);
+		transformation.setStatusProperty(statusProperty);
+		return transformation.transform(image);
 	}
 
 	private <T extends Transformation> T initTransformation(Class<T> transformationClass, Map<Class<?>, Config> allConfigs) {
@@ -165,7 +169,7 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		Map<Class<?>, Config> allConfigs = imageRepository.getAllConfigs();
 		ImageBundle imageBundle = imageRepository.getImageBundle();
 		Transformation transformation = initTransformation(config.getMainTransformation(), allConfigs);
-		Image newImage = transformation.transform(imageBundle.getCurrentImage());
+		Image newImage = appendTransformation(imageBundle.getCurrentImage(), transformation);
 		imageRepository.setImageBundle(new ImageBundle(newImage, newImage, new double[256]));
 		convertAndSave(newImage, true);
 	}
