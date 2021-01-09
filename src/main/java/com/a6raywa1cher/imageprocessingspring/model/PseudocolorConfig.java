@@ -22,11 +22,11 @@ public class PseudocolorConfig implements GenericConfig {
 
 	private Color color4 = Color.LIGHTBLUE;
 
-	private int q1;
+	private int q1 = 255 / 4;
 
-	private int q2;
+	private int q2 = 255 * 2 / 4;
 
-	private int q3;
+	private int q3 = 255 * 3 / 4;
 
 	private boolean preview;
 

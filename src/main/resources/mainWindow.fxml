@@ -109,6 +109,9 @@
                                                     <fx:include source="embossing.fxml" AnchorPane.leftAnchor="0.0"
                                                                 AnchorPane.rightAnchor="0.0"
                                                                 AnchorPane.topAnchor="1260.0"/>
+                                                    <fx:include source="bincluster.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="1350.0"/>
                                                 </children>
                                                 <padding>
                                                     <Insets left="10.0" right="10.0" top="5.0"/>
