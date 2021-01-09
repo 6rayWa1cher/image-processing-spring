@@ -13,8 +13,8 @@ import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 
 @Slf4j
 public class BinaryClusterTransformation implements Transformation {
-	public final static int CLUSTERIZATION_MAX_ATTEMPTS = 20;
-	public static final int CLUSTERIZATION_MIN_ATTEMPTS = 5;
+	public final static int CLUSTERIZATION_MAX_ATTEMPTS = 100;
+	public static final int CLUSTERIZATION_MIN_ATTEMPTS = 1;
 	public static final boolean GRAY_SCALE_BEFORE = true;
 	public static final int CLUSTER_DIM_MAX_DELTA = 100;
 	public static final String STATUS_PREFIX = "BinaryClusterTransformation: ";
@@ -98,11 +98,18 @@ public class BinaryClusterTransformation implements Transformation {
 		return out;
 	}
 
+	private void reportClusterCoordsCalculation(Point3D prevWhiteCluster, Point3D prevBlackCluster, int attempts) {
+		double p = Math.sqrt(Math.min(1 / prevWhiteCluster.distance(whiteCluster), 1) *
+			Math.min(1 / prevBlackCluster.distance(blackCluster), 1));
+		statusProperty.set(STATUS_PREFIX + "cluster gen " + (int) Math.round(p * 100) + "% (" + attempts + "/" + CLUSTERIZATION_MAX_ATTEMPTS + ")");
+		progressBarProperty.set(p);
+	}
+
 	private void calculateClusterCoords(byte[] source) {
 		Point3D prevWhiteCluster, prevBlackCluster;
 		int attempts = 0;
+		reportClusterCoordsCalculation(Point3D.ZERO, Point3D.ZERO, 1);
 		do {
-			statusProperty.set(STATUS_PREFIX + "cluster gen attempt " + (attempts + 1));
 			prevWhiteCluster = whiteCluster;
 			prevBlackCluster = blackCluster;
 			List<Point3D> clusterCenters = List.of(this.whiteCluster, blackCluster);
@@ -118,10 +125,11 @@ public class BinaryClusterTransformation implements Transformation {
 				blackCluster = centered.get(0);
 			}
 			attempts++;
+			reportClusterCoordsCalculation(prevWhiteCluster, prevBlackCluster, attempts + 1);
 		} while (
 			(
-				prevWhiteCluster.distance(whiteCluster) > 0.5 ||
-					prevBlackCluster.distance(blackCluster) > 0.5 ||
+				prevWhiteCluster.distance(whiteCluster) > 1 ||
+					prevBlackCluster.distance(blackCluster) > 1 ||
 					attempts < CLUSTERIZATION_MIN_ATTEMPTS
 			) && attempts < CLUSTERIZATION_MAX_ATTEMPTS
 		);
