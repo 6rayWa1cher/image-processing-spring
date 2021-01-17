@@ -2,8 +2,8 @@
 
 <!--<?import com.a6raywa1cher.imageprocessingspring.util.ResizableCanvas?>-->
 
+<?import com.a6raywa1cher.imageprocessingspring.util.ResizableCanvas?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.Color?>
@@ -15,37 +15,10 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <!--                        <MenuItem mnemonicParsing="false" text="New"/>-->
                         <MenuItem mnemonicParsing="false" onAction="#onOpenFile" text="Open…"/>
-                        <Menu mnemonicParsing="false" text="Open Recent"/>
                         <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Close"/>
                         <MenuItem mnemonicParsing="false" onAction="#onSaveFile" text="Save"/>
                         <MenuItem mnemonicParsing="false" onAction="#onSaveFileAs" text="Save As…"/>
-                        <MenuItem mnemonicParsing="false" text="Revert"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Preferences…"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Quit"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Undo"/>
-                        <MenuItem mnemonicParsing="false" text="Redo"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Cut"/>
-                        <MenuItem mnemonicParsing="false" text="Copy"/>
-                        <MenuItem mnemonicParsing="false" text="Paste"/>
-                        <MenuItem mnemonicParsing="false" text="Delete"/>
-                        <SeparatorMenuItem mnemonicParsing="false"/>
-                        <MenuItem mnemonicParsing="false" text="Select All"/>
-                        <MenuItem mnemonicParsing="false" text="Unselect All"/>
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="About MyHelloApp"/>
                     </items>
                 </Menu>
             </menus>
@@ -158,11 +131,11 @@
                                 <Color blue="0.624" green="0.624" red="0.624" fx:id="x2"/>
                             </textFill>
                         </Label>
-                        <Canvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0" width="200.0"
-                                AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0"/>
+                        <!--                        <Canvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0" width="200.0"-->
+                        <!--                                AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0"/>-->
 
-                        <!--                        <ResizableCanvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0"-->
-                        <!--                                         width="200.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0"/>-->
+                        <ResizableCanvas fx:id="histogramCanvas" height="94.0" layoutX="10.0" layoutY="66.0"
+                                         width="200.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="11.0"/>
                         <Label layoutX="13.0" layoutY="41.0" text="Histogram"/>
                         <Separator layoutX="11.0" layoutY="57.0" prefWidth="200.0" AnchorPane.leftAnchor="10.0"
                                    AnchorPane.rightAnchor="10.0"/>
