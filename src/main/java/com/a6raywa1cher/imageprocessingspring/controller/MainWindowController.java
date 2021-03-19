@@ -30,6 +30,8 @@ public class MainWindowController {
 	public AnchorPane anchorPane1;
 	public ScrollPane scrollPane2;
 	public AnchorPane anchorPane2;
+	public ScrollPane scrollPane3;
+	public AnchorPane anchorPane3;
 	private double[] cachedHistogramInfo = new double[256];
 
 	@Autowired
@@ -42,6 +44,7 @@ public class MainWindowController {
 		histogramCanvas.heightProperty().addListener(e -> renderHistogram(cachedHistogramInfo));
 		scrollPane1.viewportBoundsProperty().addListener((observableValue, o, n) -> anchorPane1.setPrefWidth(n.getMaxX()));
 		scrollPane2.viewportBoundsProperty().addListener((observableValue, o, n) -> anchorPane2.setPrefWidth(n.getMaxX()));
+		scrollPane3.viewportBoundsProperty().addListener((observableValue, o, n) -> anchorPane3.setPrefWidth(n.getMaxX()));
 	}
 
 	public Stage getStage() {

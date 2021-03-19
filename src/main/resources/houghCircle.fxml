@@ -2,21 +2,22 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="85.0" prefWidth="133.0"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="117.0" prefWidth="133.0"
             xmlns="http://javafx.com/javafx/11.0.1"
-            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.transform.HoughLineTransformController">
+            fx:controller="com.a6raywa1cher.imageprocessingspring.controller.transform.HoughCircleTransformController">
     <children>
-        <Label text="HoughLine"/>
+        <Label text="HoughCircle"/>
         <Separator layoutY="18.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
-        <AnchorPane layoutY="21.0" prefHeight="63.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
+        <AnchorPane layoutY="21.0" prefHeight="95.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0">
             <children>
                 <AnchorPane layoutY="6.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                     <children>
-                        <ColorPicker fx:id="picker" prefHeight="25.0" prefWidth="133.0"/>
+                        <ColorPicker fx:id="picker" prefHeight="25.0" prefWidth="133.0" AnchorPane.leftAnchor="0.0"
+                                     AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
                     </children>
                 </AnchorPane>
-                <AnchorPane layoutY="37.0" prefHeight="22.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0"
+                <AnchorPane layoutY="69.0" prefHeight="22.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0"
                             AnchorPane.rightAnchor="0.0">
                     <children>
                         <CheckBox fx:id="previewCheckbox" layoutY="3.0" mnemonicParsing="false" onAction="#onChange"
@@ -25,6 +26,10 @@
                                 onAction="#apply" text="Apply" AnchorPane.rightAnchor="0.0"/>
                     </children>
                 </AnchorPane>
+                <Spinner fx:id="spinner" layoutX="23.0" layoutY="35.0" prefHeight="25.0" prefWidth="110.0"
+                         AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="0.0"/>
+                <Label alignment="CENTER" layoutX="2.0" layoutY="39.0" prefHeight="17.0" prefWidth="20.0" text="R"
+                       textAlignment="CENTER" AnchorPane.leftAnchor="2.0"/>
             </children>
         </AnchorPane>
     </children>

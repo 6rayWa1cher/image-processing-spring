@@ -2,23 +2,22 @@ package com.a6raywa1cher.imageprocessingspring.service.dto;
 
 import javafx.geometry.Point2D;
 import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.getHeight;
-import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.getWidth;
-
 @Data
-@AllArgsConstructor
-public class Line {
-	private int fi;
+public class Line implements GeometryFigure {
+	private final int fi;
 
-	private int radius;
+	private final int radius;
+
+	public Line(int fi, int radius) {
+		this.fi = Math.floorMod(fi, 180);
+		this.radius = radius;
+	}
 
 	public List<Point2D> getPoints(int width, int height) {
 		double radius = this.getRadius();
@@ -46,11 +45,8 @@ public class Line {
 		return out;
 	}
 
-	public void drawLine(WritableImage writableImage, Color color) {
-		int width = getWidth(writableImage);
-		int height = getHeight(writableImage);
-		PixelWriter pixelWriter = writableImage.getPixelWriter();
-
+	@Override
+	public void draw(PixelWriter pixelWriter, int width, int height, Color color) {
 		double radius = this.getRadius();
 		double fiRads = Math.toRadians(this.getFi());
 
