@@ -14,8 +14,11 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritablePixelFormat;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -37,12 +40,13 @@ import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 
 @Service
 @Slf4j
-public class ImageProcessingServiceImpl implements ImageProcessingService {
+public class ImageProcessingServiceImpl implements ImageProcessingService, ApplicationContextAware {
 	private final ImageRepository imageRepository;
 	private final Executor executor = new HeapExecutor();
 	private final List<Class<? extends Transformation>> order;
 	private final ObjectProperty<Double> progressBarProperty;
 	private final ObjectProperty<String> statusProperty;
+	private ApplicationContext ctx;
 
 	@Autowired
 	public ImageProcessingServiceImpl(ImageRepository imageRepository, List<Class<? extends Transformation>> transformations,
@@ -100,6 +104,8 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 							if (qualifier.value().equals("progressBarProperty")) {
 								return progressBarProperty;
 							}
+						} else {
+							return ctx.getBean(p.getType());
 						}
 						return null;
 					})
@@ -218,5 +224,10 @@ public class ImageProcessingServiceImpl implements ImageProcessingService {
 		log.info("Trying to open url {}", url);
 		Image image = new Image(url);
 		openFile(image, url);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.ctx = applicationContext;
 	}
 }

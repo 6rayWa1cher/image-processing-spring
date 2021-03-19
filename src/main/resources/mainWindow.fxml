@@ -93,6 +93,22 @@
                                         </ScrollPane>
                                     </content>
                                 </TitledPane>
+                                <TitledPane animated="false" contentDisplay="CENTER" text="Vision">
+                                    <content>
+                                        <ScrollPane fx:id="scrollPane3" hbarPolicy="NEVER">
+                                            <AnchorPane fx:id="anchorPane3" prefHeight="455.0" prefWidth="177.0">
+                                                <children>
+                                                    <fx:include source="HoughLine.fxml" AnchorPane.leftAnchor="0.0"
+                                                                AnchorPane.rightAnchor="0.0"
+                                                                AnchorPane.topAnchor="0.0"/>
+                                                </children>
+                                                <padding>
+                                                    <Insets left="10.0" right="10.0" top="5.0"/>
+                                                </padding>
+                                            </AnchorPane>
+                                        </ScrollPane>
+                                    </content>
+                                </TitledPane>
                                 <TitledPane animated="false" text="Settings">
                                     <content>
                                         <ScrollPane fx:id="scrollPane2" hbarPolicy="NEVER">

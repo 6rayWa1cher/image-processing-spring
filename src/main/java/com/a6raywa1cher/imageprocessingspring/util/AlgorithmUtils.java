@@ -28,6 +28,10 @@ public class AlgorithmUtils {
 		return Byte.toUnsignedInt(image[toCoord(x, y, width, channel)]);
 	}
 
+	public static double getDiagonal(int width, int height) {
+		return Math.sqrt(width * width + height * height);
+	}
+
 	public static WritableImage extendImageSecondStrategy(Image image, int byPixels) {
 		WritableImage writableImage = imageToWriteable(image);
 		PixelReader pixelReader = writableImage.getPixelReader();
