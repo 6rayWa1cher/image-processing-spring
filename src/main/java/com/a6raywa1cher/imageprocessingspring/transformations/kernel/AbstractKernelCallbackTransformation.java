@@ -69,7 +69,7 @@ public abstract class AbstractKernelCallbackTransformation implements Transforma
 				double p = (double) (x * height + y) / (width * height);
 				if (p - currentPercent >= 0.01d) {
 					currentPercent = p;
-					progressBarProperty.set(currentPercent);
+					if (progressBarProperty != null) progressBarProperty.set(currentPercent);
 				}
 			}
 		}

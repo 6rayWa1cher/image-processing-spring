@@ -1,21 +1,32 @@
 package com.a6raywa1cher.imageprocessingspring.service.impl;
 
+import com.a6raywa1cher.imageprocessingspring.model.BinaryConfig;
+import com.a6raywa1cher.imageprocessingspring.model.KirschConfig;
 import com.a6raywa1cher.imageprocessingspring.service.VisionService;
 import com.a6raywa1cher.imageprocessingspring.service.dto.Circle;
 import com.a6raywa1cher.imageprocessingspring.service.dto.Line;
+import com.a6raywa1cher.imageprocessingspring.service.dto.ObjectSearchResult;
+import com.a6raywa1cher.imageprocessingspring.transformations.kernel.KirschKernelTransformation;
+import com.a6raywa1cher.imageprocessingspring.transformations.point.BinaryTransformation;
+import com.a6raywa1cher.imageprocessingspring.transformations.scaling.NearestNeighborScalingTransformation;
+import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritablePixelFormat;
+import javafx.util.Pair;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.IntStream;
 
+import static com.a6raywa1cher.imageprocessingspring.service.impl.ImageProcessingServiceImpl.saveToFile;
 import static com.a6raywa1cher.imageprocessingspring.util.AlgorithmUtils.*;
-import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.getHeight;
-import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.getWidth;
+import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
+import static java.lang.Math.*;
 
 @Service
 @Slf4j
@@ -86,7 +97,7 @@ public class VisionServiceImpl implements VisionService {
 
 				for (int fi = 0; fi < 180; fi++) {
 					double fiRads = Math.toRadians(fi);
-					double doubleRadius = x * Math.cos(fiRads) + y * Math.sin(fiRads);
+					double doubleRadius = x * cos(fiRads) + y * sin(fiRads);
 					int r = (int) doubleRadius;
 					lineStatistics[fi][r + diag]++;
 				}
@@ -214,5 +225,117 @@ public class VisionServiceImpl implements VisionService {
 
 		log.info("Found {} circles", circles.size());
 		return circles;
+	}
+
+	private Image prepareImageForSearch(Image image) {
+		Image step1 = new KirschKernelTransformation(new KirschConfig())
+			.transform(image);
+		return new BinaryTransformation(new BinaryConfig(128, false))
+			.transform(step1);
+	}
+
+	private int calculateWhitePixels(byte[] templatePxl) {
+		int out = 0;
+		for (int i = 0; i < templatePxl.length / 4; i++) {
+			if (templatePxl[4 * i] == (byte) 255) {
+				out++;
+			}
+		}
+		return out;
+	}
+
+	@Override
+	@SneakyThrows
+	public ObjectSearchResult findObject(Image image, Image template) {
+		log.info("Starting...");
+		Image objectImg = prepareImageForSearch(image);
+		int objWidth = getWidth(objectImg);
+		int objHeight = getHeight(objectImg);
+		int tempWidth = getWidth(template);
+		int tempHeight = getHeight(template);
+//		Image transformedTemplate = prepareImageForSearch(template);
+		Image transformedTemplate = template;
+
+		byte[] objectPxl = new byte[objWidth * objHeight * 4];
+		objectImg.getPixelReader().getPixels(0, 0, objWidth, objHeight,
+			WritablePixelFormat.getByteBgraPreInstance(), objectPxl, 0, objWidth * 4);
+
+		int threadCount = 16;
+		List<Thread> threads = new ArrayList<>(threadCount);
+		ObjectSearchResult[] results = new ObjectSearchResult[threadCount];
+		int[] resultMaxMatches = new int[threadCount];
+		int[] targetWidths = new int[tempWidth + 1];
+		for (int i = 0; i < threadCount; i++) {
+			int finalI = i;
+			threads.add(new Thread(() -> {
+				ObjectSearchResult currMax = new ObjectSearchResult(0, 0, 0, 1, 1, 0);
+				int currMaxMatch = 0;
+				for (int targetWidth = 1 + finalI; targetWidth <= tempWidth; targetWidth = targetWidth + threadCount) {
+					targetWidths[targetWidth] = 1;
+//				int targetWidth = tempWidth;
+					int targetHeight = targetWidth == tempWidth ? tempHeight : tempHeight * targetWidth / tempWidth;
+					if (targetHeight >= objHeight) break;
+					Image scaledTemplate = new NearestNeighborScalingTransformation(
+						new Point2D(0, 0), new Point2D(tempWidth, tempHeight),
+						new Point2D(0, 0), new Point2D(targetWidth, targetHeight)
+					).transform(transformedTemplate);
+					byte[] templatePxl = new byte[targetWidth * targetHeight * 4];
+					scaledTemplate.getPixelReader().getPixels(0, 0, targetWidth, targetHeight,
+						WritablePixelFormat.getByteBgraPreInstance(), templatePxl, 0, targetWidth * 4);
+					int whitePixelsInTemplate = calculateWhitePixels(templatePxl);
+					for (int tempX = 0; tempX < objWidth; tempX++) {
+						for (int tempY = 0; tempY < objHeight; tempY++) {
+//							for (int a = 0; a < 360; a++) {
+							int a = 0;
+//								double theta = toRadians(a);
+//								double cos = cos(theta);
+//								double sin = sin(theta);
+							int currMatch = 0;
+							for (int x = 0; x < targetWidth; x++) {
+								for (int y = 0; y < targetHeight; y++) {
+//									double theta = toRadians(a);
+//
+//										int rotatedX = (int) Math.round(cos * x - sin * y) + tempX;
+//										int rotatedY = (int) Math.round(sin * x + cos * y) + tempY;
+
+									int rotatedX = x + tempX;
+									int rotatedY = y + tempY;
+
+									if (rotatedX < 0 || rotatedX >= objWidth || rotatedY < 0 || rotatedY >= objHeight) {
+										continue;
+									}
+
+									int coordInTemp = toCoord(x, y, targetWidth, 0);
+									int coordInObj = toCoord(rotatedX, rotatedY, objWidth, 0);
+
+									if (objectPxl[coordInObj] == templatePxl[coordInTemp] && objectPxl[coordInObj] == (byte) 255) {
+										currMatch++;
+									}
+								}
+							}
+							if (currMatch > currMaxMatch) {
+								currMaxMatch = currMatch;
+								currMax = new ObjectSearchResult(tempX, tempY, a, targetWidth, targetHeight, (double) currMatch / whitePixelsInTemplate);
+							}
+						}
+					}
+				}
+//				}
+//		}
+				results[finalI] = currMax;
+				resultMaxMatches[finalI] = currMaxMatch;
+			}));
+		}
+		threads.forEach(Thread::start);
+		for (Thread thread : threads) {
+			thread.join();
+		}
+		ObjectSearchResult currMax = IntStream.range(0, threadCount)
+			.mapToObj(i -> new Pair<>(results[i], resultMaxMatches[i]))
+			.max(Comparator.comparingInt(Pair::getValue))
+			.orElseThrow()
+			.getKey();
+		log.info("Completed, cf:{}", currMax.confidenceFactor());
+		return currMax;
 	}
 }

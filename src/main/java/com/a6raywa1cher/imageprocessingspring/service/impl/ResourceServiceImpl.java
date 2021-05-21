@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Set;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
@@ -31,6 +32,11 @@ public class ResourceServiceImpl implements ResourceService {
 	@Override
 	public Image loadStaticImage(String image) throws IOException {
 		return new Image(getResourceURL(image).toString());
+	}
+
+	@Override
+	public Set<String> getAllFilesInDirectory(String dir) {
+		return Set.of("circle.png", "check.png", "rect.png"); // TODO: make real logic
 	}
 
 	public URL getStaticImageURL(String image) throws IOException {

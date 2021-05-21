@@ -62,7 +62,7 @@ public abstract class AbstractScalingTransformation implements Transformation {
 				double p = (double) ((x - toX) * toH + (y - toY)) / (toW * toH);
 				if (p - currentPercent >= 0.01d) {
 					currentPercent = p;
-					progressBarProperty.set(currentPercent);
+					if (progressBarProperty != null) progressBarProperty.set(currentPercent);
 				}
 			}
 		}
