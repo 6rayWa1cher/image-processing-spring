@@ -1,10 +1,12 @@
 package com.a6raywa1cher.imageprocessingspring.service;
 
 import com.a6raywa1cher.imageprocessingspring.service.dto.Circle;
+import com.a6raywa1cher.imageprocessingspring.service.dto.DigitSearchResult;
 import com.a6raywa1cher.imageprocessingspring.service.dto.Line;
 import com.a6raywa1cher.imageprocessingspring.service.dto.ObjectSearchResult;
 import javafx.scene.image.Image;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface VisionService {
@@ -14,5 +16,5 @@ public interface VisionService {
 
 	ObjectSearchResult findObject(Image image, Image template);
 
-
+	DigitSearchResult findDigit(Image image, Map<Integer, Image> templateMap);
 }

@@ -1,9 +1,8 @@
 package com.a6raywa1cher.imageprocessingspring.util;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import com.a6raywa1cher.imageprocessingspring.service.dto.DoubleRectangle;
+import com.a6raywa1cher.imageprocessingspring.service.dto.Rectangle;
+import javafx.scene.image.*;
 
 import static com.a6raywa1cher.imageprocessingspring.util.JavaFXUtils.*;
 
@@ -30,6 +29,32 @@ public class AlgorithmUtils {
 
 	public static double getDiagonal(int width, int height) {
 		return Math.sqrt(width * width + height * height);
+	}
+
+	public static byte[] imageToArray(Image image) {
+		int width = getWidth(image);
+		int height = getHeight(image);
+		return imageToArray(image, 0, 0, width, height);
+	}
+
+	public static byte[] imageToArray(Image image, int x, int y, int w, int h) {
+		int width = getWidth(image);
+		byte[] bytes = new byte[w * h * 4];
+		image.getPixelReader().getPixels(x, y, w, h,
+			WritablePixelFormat.getByteBgraPreInstance(), bytes, 0, w * 4);
+		return bytes;
+	}
+
+	public static double overlappingArea(DoubleRectangle r1, DoubleRectangle r2) {
+		double leftX = Math.max(r1.x1(), r2.x1());
+		double rightX = Math.min(r1.x2(), r2.x2());
+		double topY = Math.max(r1.y1(), r2.y1());
+		double bottomY = Math.min(r1.y2(), r2.y2());
+		if (leftX < rightX && topY < bottomY) {
+			return (rightX - leftX) * (bottomY - topY);
+		} else {
+			return 0;
+		}
 	}
 
 	public static WritableImage extendImageSecondStrategy(Image image, int byPixels) {

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
@@ -36,7 +38,13 @@ public class ResourceServiceImpl implements ResourceService {
 
 	@Override
 	public Set<String> getAllFilesInDirectory(String dir) {
-		return Set.of("circle.png", "check.png", "rect.png"); // TODO: make real logic
+		if (dir.equals("templates")) {
+			return Set.of("circle.png", "check.png", "rect.png"); // TODO: make real logic
+		} else {
+			return IntStream.range(0, 10)
+				.mapToObj(i -> "number" + i + ".png")
+				.collect(Collectors.toSet());
+		}
 	}
 
 	public URL getStaticImageURL(String image) throws IOException {

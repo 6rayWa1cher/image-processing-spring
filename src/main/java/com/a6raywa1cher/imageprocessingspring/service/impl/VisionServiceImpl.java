@@ -3,9 +3,7 @@ package com.a6raywa1cher.imageprocessingspring.service.impl;
 import com.a6raywa1cher.imageprocessingspring.model.BinaryConfig;
 import com.a6raywa1cher.imageprocessingspring.model.KirschConfig;
 import com.a6raywa1cher.imageprocessingspring.service.VisionService;
-import com.a6raywa1cher.imageprocessingspring.service.dto.Circle;
-import com.a6raywa1cher.imageprocessingspring.service.dto.Line;
-import com.a6raywa1cher.imageprocessingspring.service.dto.ObjectSearchResult;
+import com.a6raywa1cher.imageprocessingspring.service.dto.*;
 import com.a6raywa1cher.imageprocessingspring.transformations.kernel.KirschKernelTransformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.point.BinaryTransformation;
 import com.a6raywa1cher.imageprocessingspring.transformations.scaling.NearestNeighborScalingTransformation;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.a6raywa1cher.imageprocessingspring.service.impl.ImageProcessingServiceImpl.saveToFile;
@@ -160,12 +159,10 @@ public class VisionServiceImpl implements VisionService {
 		log.info("Starting...");
 		int width = getWidth(image);
 		int height = getHeight(image);
-		PixelReader pixelReader = image.getPixelReader();
 
 		int[][] circleStatistics = new int[height][width];
 
-		byte[] source = new byte[width * height * 4];
-		pixelReader.getPixels(0, 0, width, height, WritablePixelFormat.getByteBgraPreInstance(), source, 0, width * 4);
+		byte[] source = imageToArray(image);
 
 		int cores = Runtime.getRuntime().availableProcessors();
 		List<Thread> threads = new ArrayList<>(cores);
@@ -254,31 +251,26 @@ public class VisionServiceImpl implements VisionService {
 		int tempWidth = getWidth(template);
 		int tempHeight = getHeight(template);
 //		Image transformedTemplate = prepareImageForSearch(template);
-		Image transformedTemplate = template;
 
-		byte[] objectPxl = new byte[objWidth * objHeight * 4];
-		objectImg.getPixelReader().getPixels(0, 0, objWidth, objHeight,
-			WritablePixelFormat.getByteBgraPreInstance(), objectPxl, 0, objWidth * 4);
+		byte[] objectPxl = imageToArray(objectImg);
 
 		int threadCount = 16;
 		List<Thread> threads = new ArrayList<>(threadCount);
 		ObjectSearchResult[] results = new ObjectSearchResult[threadCount];
 		int[] resultMaxMatches = new int[threadCount];
-		int[] targetWidths = new int[tempWidth + 1];
 		for (int i = 0; i < threadCount; i++) {
 			int finalI = i;
 			threads.add(new Thread(() -> {
 				ObjectSearchResult currMax = new ObjectSearchResult(0, 0, 0, 1, 1, 0);
 				int currMaxMatch = 0;
 				for (int targetWidth = 1 + finalI; targetWidth <= tempWidth; targetWidth = targetWidth + threadCount) {
-					targetWidths[targetWidth] = 1;
 //				int targetWidth = tempWidth;
 					int targetHeight = targetWidth == tempWidth ? tempHeight : tempHeight * targetWidth / tempWidth;
 					if (targetHeight >= objHeight) break;
 					Image scaledTemplate = new NearestNeighborScalingTransformation(
 						new Point2D(0, 0), new Point2D(tempWidth, tempHeight),
 						new Point2D(0, 0), new Point2D(targetWidth, targetHeight)
-					).transform(transformedTemplate);
+					).transform(template);
 					byte[] templatePxl = new byte[targetWidth * targetHeight * 4];
 					scaledTemplate.getPixelReader().getPixels(0, 0, targetWidth, targetHeight,
 						WritablePixelFormat.getByteBgraPreInstance(), templatePxl, 0, targetWidth * 4);
@@ -337,5 +329,110 @@ public class VisionServiceImpl implements VisionService {
 			.getKey();
 		log.info("Completed, cf:{}", currMax.confidenceFactor());
 		return currMax;
+	}
+
+	private Rectangle calculateMinimalBorder(Image image) {
+		int width = getWidth(image);
+		int height = getHeight(image);
+		int left = width, right = 0, up = height, down = 0;
+
+		byte[] source = imageToArray(image);
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				int coord = toCoord(x, y, width, 0);
+				if (source[coord] == 0) {
+					if (x < left) {
+						left = x;
+					}
+					if (right < x) {
+						right = x;
+					}
+					if (y < up) {
+						up = y;
+					}
+					if (down < y) {
+						down = y;
+					}
+				}
+			}
+		}
+		return new Rectangle(left, up, right - left, down - up);
+	}
+
+	private double[] calculateVector(Image image, int n, int m) {
+		Rectangle rectangle = calculateMinimalBorder(image);
+		double[][] cellStats = new double[n][m];
+		byte[] source = imageToArray(image, rectangle.x(), rectangle.y(), rectangle.w(), rectangle.h());
+		int width = rectangle.w();
+		int height = rectangle.h();
+		double stepX = ((double) width) / n;
+		double stepY = ((double) height) / m;
+		int totalBlackPixels = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				double cellX1 = stepX * i;
+				double cellY1 = stepY * j;
+//				double cellX2 = i == n - 1 ? width : cellX1 + stepX;
+//				double cellY2 = j == m - 1 ? height : cellY1 + stepY;
+				for (int x = 0; x < width; x++) {
+					for (int y = 0; y < height; y++) {
+						if (source[toCoord(x, y, width, 0)] == 0) {
+							totalBlackPixels++;
+							cellStats[i][j] += overlappingArea(
+								new DoubleRectangle(x, y, 1, 1),
+								new DoubleRectangle(cellX1, cellY1, stepX, stepY)
+							);
+						}
+					}
+				}
+			}
+		}
+		double[] out = new double[n * m];
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				out[i * m + j] = cellStats[i][j] / totalBlackPixels;
+			}
+		}
+		return out;
+	}
+
+	private double euclidDistance(double[] a, double[] b) {
+		if (a.length != b.length) throw new RuntimeException(a.length + "!=" + b.length);
+		double sum = 0;
+		for (int i = 0; i < a.length; i++) {
+			sum += (a[i] - b[i]) * (a[i] - b[i]);
+		}
+		return Math.sqrt(sum);
+	}
+
+	@Override
+	public DigitSearchResult findDigit(Image image, Map<Integer, Image> templateMap) {
+		log.info("Starting");
+		image = new BinaryTransformation(new BinaryConfig(127, false)).transform(image);
+		templateMap.replaceAll((i, img) -> new BinaryTransformation(new BinaryConfig(127, false)).transform(img));
+		int n = 5, m = 5;
+		for (int i = 0; i < 10; i++) {
+			if (!templateMap.containsKey(i)) throw new RuntimeException("" + i);
+		}
+		double[][] vectors = templateMap.entrySet().parallelStream()
+			.sorted(Comparator.comparingInt(Map.Entry::getKey))
+			.map(e -> calculateVector(e.getValue(), n, m))
+			.toArray(double[][]::new);
+		double[] imageVector = calculateVector(image, n, m);
+		int currResult = -1;
+		double currMax = Double.POSITIVE_INFINITY;
+		double prevMax = Double.POSITIVE_INFINITY;
+		for (int i = 0; i < vectors.length; i++) {
+			double distance = euclidDistance(vectors[i], imageVector);
+			if (distance <= currMax) {
+				prevMax = currMax;
+				currMax = distance;
+				currResult = i;
+			} else if (distance <= prevMax) {
+				prevMax = distance;
+			}
+		}
+		log.info("Completed");
+		return new DigitSearchResult(currResult, (prevMax - currMax) / prevMax);
 	}
 }
